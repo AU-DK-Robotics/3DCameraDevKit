@@ -68,6 +68,7 @@ int PMDCamera::set_camera_data_mode(size_t data_mode)
 			return 1;
 		}
 	}
+
 	else if (data_mode == 1)
 	{
 		if (m_camera_device->registerDepthImageListener(&m_listener_depth) != CameraStatus::SUCCESS)
@@ -81,6 +82,8 @@ int PMDCamera::set_camera_data_mode(size_t data_mode)
 
 int PMDCamera::start_capture()
 {
+	this->stop_capture();
+
 	if (m_camera_device->startCapture() != CameraStatus::SUCCESS)
 	{
 		cerr << "Error starting the capturing" << endl;
@@ -99,7 +102,63 @@ int PMDCamera::stop_capture()
 	return 0;
 }
 
-ListenerPointCloud::ListenerPointCloud()
+pcl::PointCloud<pcl::PointXYZ>::Ptr PMDCamera::get_cloud_ptr() const
+{
+	return this->m_listener_point_cloud.get_cloud_ptr();
+}
+
+void ListenerPointCloud::save_royale_xyzcPoints(const royale::SparsePointCloud * data, const string& filename, float write_confidence)
+{
+	ofstream ofile;
+
+	ofile.open(filename, std::ios::out);
+
+	if (!ofile.is_open())
+	{
+		return;
+	}
+
+	for (size_t i = 0; i < data->xyzcPoints.size(); i+=4)
+	{
+		if (data->xyzcPoints.at(i + 3) > write_confidence)
+		{
+			ofile
+				<< data->xyzcPoints.at(i) << " "
+				<< data->xyzcPoints.at(i + 1) << " "
+				<< data->xyzcPoints.at(i + 2)
+				<< endl;
+		}
+	}
+	ofile.close();
+}
+
+void ListenerPointCloud::save_royale_xyzcPoints(const royale::SparsePointCloud * data, vector<pointXYZ>& points, float write_confidence)
+{
+	pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_ptr(new pcl::PointCloud<pcl::PointXYZ>);
+
+	for (size_t i = 0; i < data->xyzcPoints.size(); i+=4)
+	{
+		float c = data->xyzcPoints.at(i + 3);
+
+		if (c > write_confidence)
+		{
+			float
+				x = data->xyzcPoints.at(i),
+				y = data->xyzcPoints.at(i + 1),
+				z = data->xyzcPoints.at(i + 2);
+
+			points.push_back(pointXYZ(x, y, z));
+
+			cloud_ptr->points.push_back(pcl::PointXYZ(x, y, z));
+			
+		}
+	}
+			
+	m_cloud_ptr = cloud_ptr;
+}
+
+ListenerPointCloud::ListenerPointCloud():
+	m_cloud_ptr(new pcl::PointCloud<pcl::PointXYZ>)
 {
 }
 
@@ -110,6 +169,21 @@ ListenerPointCloud::~ListenerPointCloud()
 void ListenerPointCloud::onNewData(const royale::SparsePointCloud * data)
 {
 	cout << "retrieve point cloud ..." << endl;
+	
+	// save_royale_xyzcPoints(data, "current_frame.txt");
+
+	save_royale_xyzcPoints(data, this->m_points, 0.5);
+
+}
+
+pcl::PointCloud<pcl::PointXYZ>::Ptr ListenerPointCloud::get_cloud_ptr() const
+{
+	return this->m_cloud_ptr;
+}
+
+std::vector<pointXYZ> ListenerPointCloud::get_points() const
+{
+	return this->m_points;
 }
 
 ListenerDepth::ListenerDepth()

@@ -1,4 +1,12 @@
+
+#define SHOWCLOUD
+
+#ifdef SHOWCLOUD
+#include <pcl/visualization/pcl_visualizer.h>
+#endif // SHOWCLOUD
+
 #include "PMDCamera.h"
+
 
 int main(int argc, char *argv[])
 {
@@ -16,7 +24,22 @@ int main(int argc, char *argv[])
 
 	pmd_camera.start_capture();
 
-	Sleep(5000);
+#ifdef SHOWCLOUD
+	pcl::visualization::PCLVisualizer::Ptr viewer(new pcl::visualization::PCLVisualizer("3D Viewer"));
+	viewer->setBackgroundColor(0, 0, 0);
+	pcl::PointCloud<pcl::PointXYZ>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZ>);
+	viewer->addPointCloud<pcl::PointXYZ>(cloud, "cloud");
+	viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 2, "cloud");
+	//viewer->addCoordinateSystem(1.0);
+	viewer->initCameraParameters();
+	
+	while (!viewer->wasStopped())
+	{
+		viewer->updatePointCloud<pcl::PointXYZ>(pmd_camera.get_cloud_ptr(), "cloud");
+		viewer->spinOnce(100);
+	}
+
+#endif // SHOWCLOUD
 
 	pmd_camera.stop_capture();
 
