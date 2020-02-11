@@ -34,17 +34,23 @@ public:
 
 	std::vector<pointXYZ> get_points()const;
 
+	void set_trigger_count(size_t _trigger_count);
+
 private:
 
 	// Save point cloud in royale style
 	void save_royale_xyzcPoints(const royale::SparsePointCloud * data, const string& filename, float write_confidence = 0.2);
 
-	// Save current frame point cloud to class member
+	// Save current frame's point cloud to class member
 	void save_royale_xyzcPoints(const royale::SparsePointCloud * data, vector<pointXYZ>&points, float write_confidence = 0.0);
 
 	pcl::PointCloud<pcl::PointXYZ>::Ptr m_cloud_ptr;
 
 	std::vector<pointXYZ> m_points;
+
+	size_t m_trigger_count;
+
+	size_t m_local_trigger_count;
 };
 
 class ListenerDepth : public IDepthImageListener
@@ -92,10 +98,13 @@ public:
 	int set_camera_data_mode(size_t data_mode);
 
 	// start to capture, and Listener* callbacks function will be called.
+	// Before starting, it will stop the capturing anyway.
 	int start_capture();
 
 	// It should be stopped after use. Otherwise, it will result in failure to start again.
 	int stop_capture();
+
+	void set_trigger_count(size_t _count);
 
 	pcl::PointCloud<pcl::PointXYZ>::Ptr get_cloud_ptr() const;
 

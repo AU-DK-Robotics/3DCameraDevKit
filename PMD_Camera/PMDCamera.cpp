@@ -102,6 +102,11 @@ int PMDCamera::stop_capture()
 	return 0;
 }
 
+void PMDCamera::set_trigger_count(size_t _count)
+{
+	m_listener_point_cloud.set_trigger_count(_count);
+}
+
 pcl::PointCloud<pcl::PointXYZ>::Ptr PMDCamera::get_cloud_ptr() const
 {
 	return this->m_listener_point_cloud.get_cloud_ptr();
@@ -150,7 +155,7 @@ void ListenerPointCloud::save_royale_xyzcPoints(const royale::SparsePointCloud *
 			points.push_back(pointXYZ(x, y, z));
 
 			cloud_ptr->points.push_back(pcl::PointXYZ(x, y, z));
-			
+			//m_cloud_ptr->points.push_back(pcl::PointXYZ(x, y, z));
 		}
 	}
 			
@@ -158,12 +163,15 @@ void ListenerPointCloud::save_royale_xyzcPoints(const royale::SparsePointCloud *
 }
 
 ListenerPointCloud::ListenerPointCloud():
-	m_cloud_ptr(new pcl::PointCloud<pcl::PointXYZ>)
+	m_cloud_ptr(new pcl::PointCloud<pcl::PointXYZ>),
+	m_local_trigger_count(0)
 {
+
 }
 
 ListenerPointCloud::~ListenerPointCloud()
 {
+
 }
 
 void ListenerPointCloud::onNewData(const royale::SparsePointCloud * data)
@@ -172,8 +180,11 @@ void ListenerPointCloud::onNewData(const royale::SparsePointCloud * data)
 	
 	// save_royale_xyzcPoints(data, "current_frame.txt");
 
-	save_royale_xyzcPoints(data, this->m_points, 0.5);
-
+	if (++m_local_trigger_count == m_trigger_count)
+	{
+		save_royale_xyzcPoints(data, this->m_points, 0.5);
+		m_local_trigger_count = 0;
+	}
 }
 
 pcl::PointCloud<pcl::PointXYZ>::Ptr ListenerPointCloud::get_cloud_ptr() const
@@ -184,6 +195,11 @@ pcl::PointCloud<pcl::PointXYZ>::Ptr ListenerPointCloud::get_cloud_ptr() const
 std::vector<pointXYZ> ListenerPointCloud::get_points() const
 {
 	return this->m_points;
+}
+
+void ListenerPointCloud::set_trigger_count(size_t _trigger_count)
+{
+	this->m_trigger_count = _trigger_count;
 }
 
 ListenerDepth::ListenerDepth()
