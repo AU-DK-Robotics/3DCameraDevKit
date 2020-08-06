@@ -1,6 +1,9 @@
-#pragma once
+#ifndef PMDCAMERA_H
+#define PMDCAMERA_H
 
 #include <pcl/common/common_headers.h>
+#include <pcl/visualization/pcl_visualizer.h>
+#include <pcl/io/auto_io.h>
 
 #include <royale.hpp>
 #include <iostream>
@@ -13,13 +16,15 @@
 using namespace royale;
 using namespace std;
 
-struct pointXYZ
-{
-	pointXYZ(float _x, float _y, float _z) : x(_x), y(_y), z(_z) {}
-	float x;
-	float y;
-	float z;
-};
+typedef pcl::PointXYZI PCFORMAT;
+
+void add_point_cloud_visualization(pcl::visualization::PCLVisualizer::Ptr viewer_ptr, pcl::PointCloud<PCFORMAT>::Ptr m_cloud_ptr);
+
+void write_point_cloud_binary(pcl::PointCloud<PCFORMAT>::Ptr m_cloud_ptr, const std::string filename);
+
+std::string get_current_date();
+
+extern bool SAVEPOINTCLOUD;
 
 class ListenerPointCloud : public ISparsePointCloudListener
 {
@@ -28,29 +33,18 @@ public:
 
 	~ListenerPointCloud();
 
+	void set_viewer_ptr(pcl::visualization::PCLVisualizer::Ptr viewer_ptr);
+
 	void onNewData(const royale::SparsePointCloud *data) override;
 
-	pcl::PointCloud<pcl::PointXYZ>::Ptr get_cloud_ptr() const;
-
-	std::vector<pointXYZ> get_points()const;
-
-	void set_trigger_count(size_t _trigger_count);
+	pcl::PointCloud<PCFORMAT>::Ptr get_cloud_ptr() const;
 
 private:
+	void save_royale_xyzcPoints(const royale::SparsePointCloud * data);
 
-	// Save point cloud in royale style
-	void save_royale_xyzcPoints(const royale::SparsePointCloud * data, const string& filename, float write_confidence = 0.2);
+	pcl::PointCloud<PCFORMAT>::Ptr m_cloud_ptr;
 
-	// Save current frame's point cloud to class member
-	void save_royale_xyzcPoints(const royale::SparsePointCloud * data, vector<pointXYZ>&points, float write_confidence = 0.0);
-
-	pcl::PointCloud<pcl::PointXYZ>::Ptr m_cloud_ptr;
-
-	std::vector<pointXYZ> m_points;
-
-	size_t m_trigger_count;
-
-	size_t m_local_trigger_count;
+	pcl::visualization::PCLVisualizer::Ptr m_viewer_ptr;
 };
 
 class ListenerDepth : public IDepthImageListener
@@ -66,7 +60,7 @@ public:
 class PMDCamera
 {
 public:
-	PMDCamera();
+	PMDCamera(pcl::visualization::PCLVisualizer::Ptr viewer_ptr);
 
 	~PMDCamera();
 
@@ -84,10 +78,15 @@ public:
 	4: Remote collaboration, MODE_5_35PFS_500
 	5: Small object, MODe_5_45FPS_400
 	6: Hand tracking, MODE_5_60FPS
+	7: Mixed Mode
+	8: Mixed Mode
+	9: low noise extended
+	10: Fast acquistion
+	11: very fast acquistion
 
 	you should use 'get_camera_size' to see camera_index[from 0 to camera_size].
 	*/
-	int init_camera(size_t camera_index, size_t operate_mode = 5);
+	int init_camera(size_t camera_index, size_t operate_mode = 6);
 	
 	// Set the listen mode of camera
 	/*
@@ -104,10 +103,6 @@ public:
 	// It should be stopped after use. Otherwise, it will result in failure to start again.
 	int stop_capture();
 
-	void set_trigger_count(size_t _count);
-
-	pcl::PointCloud<pcl::PointXYZ>::Ptr get_cloud_ptr() const;
-
 private:
 
 	ListenerDepth m_listener_depth;
@@ -119,6 +114,6 @@ private:
 	std::unique_ptr<ICameraDevice> m_camera_device;
 
 	royale::Vector<royale::String> m_camera_list;
-
 };
 
+#endif // PMDCAMERA_H

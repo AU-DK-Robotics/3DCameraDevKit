@@ -1,7 +1,10 @@
 #include "PMDCamera.h"
 
-PMDCamera::PMDCamera() 
+bool SAVEPOINTCLOUD = false;
+
+PMDCamera::PMDCamera(pcl::visualization::PCLVisualizer::Ptr viewer_ptr)
 {
+	m_listener_point_cloud.set_viewer_ptr(viewer_ptr);
 }
 
 
@@ -45,7 +48,7 @@ int PMDCamera::init_camera(size_t camera_index, size_t operate_mode)
 	{
 		if (i == operate_mode)
 		{
-			cout << "Choose the " << useCases[i] << "mode" << endl;
+			cout << "Select the " << useCases[i] << "mode" << endl;
 		}
 	}
 	// set an operation mode
@@ -102,104 +105,59 @@ int PMDCamera::stop_capture()
 	return 0;
 }
 
-void PMDCamera::set_trigger_count(size_t _count)
+void ListenerPointCloud::save_royale_xyzcPoints(const royale::SparsePointCloud * data)
 {
-	m_listener_point_cloud.set_trigger_count(_count);
-}
-
-pcl::PointCloud<pcl::PointXYZ>::Ptr PMDCamera::get_cloud_ptr() const
-{
-	return this->m_listener_point_cloud.get_cloud_ptr();
-}
-
-void ListenerPointCloud::save_royale_xyzcPoints(const royale::SparsePointCloud * data, const string& filename, float write_confidence)
-{
-	ofstream ofile;
-
-	ofile.open(filename, std::ios::out);
-
-	if (!ofile.is_open())
+	PCFORMAT p;
+	for (size_t i = 0; i < data->xyzcPoints.size(); i += 4)
 	{
-		return;
-	}
+		p.x = data->xyzcPoints.at(i),
+		p.y = data->xyzcPoints.at(i + 1),
+		p.z = data->xyzcPoints.at(i + 2),
+		p.intensity = data->xyzcPoints.at(i + 3);
 
-	for (size_t i = 0; i < data->xyzcPoints.size(); i+=4)
-	{
-		if (data->xyzcPoints.at(i + 3) > write_confidence)
-		{
-			ofile
-				<< data->xyzcPoints.at(i) << " "
-				<< data->xyzcPoints.at(i + 1) << " "
-				<< data->xyzcPoints.at(i + 2)
-				<< endl;
-		}
+		m_cloud_ptr->points.push_back(p);
 	}
-	ofile.close();
+	//std::cout << "point size=" << m_cloud_ptr->points.size() << std::endl;
 }
 
-void ListenerPointCloud::save_royale_xyzcPoints(const royale::SparsePointCloud * data, vector<pointXYZ>& points, float write_confidence)
-{
-	pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_ptr(new pcl::PointCloud<pcl::PointXYZ>);
-
-	for (size_t i = 0; i < data->xyzcPoints.size(); i+=4)
-	{
-		float c = data->xyzcPoints.at(i + 3);
-
-		if (c > write_confidence)
-		{
-			float
-				x = data->xyzcPoints.at(i),
-				y = data->xyzcPoints.at(i + 1),
-				z = data->xyzcPoints.at(i + 2);
-
-			points.push_back(pointXYZ(x, y, z));
-
-			cloud_ptr->points.push_back(pcl::PointXYZ(x, y, z));
-			//m_cloud_ptr->points.push_back(pcl::PointXYZ(x, y, z));
-		}
-	}
-			
-	m_cloud_ptr = cloud_ptr;
-}
-
-ListenerPointCloud::ListenerPointCloud():
-	m_cloud_ptr(new pcl::PointCloud<pcl::PointXYZ>),
-	m_local_trigger_count(0)
+ListenerPointCloud::ListenerPointCloud()
+	:m_cloud_ptr(new pcl::PointCloud<PCFORMAT>())
 {
 
 }
+
 
 ListenerPointCloud::~ListenerPointCloud()
 {
 
 }
 
+void ListenerPointCloud::set_viewer_ptr(pcl::visualization::PCLVisualizer::Ptr viewer_ptr)
+{
+	m_viewer_ptr = viewer_ptr;
+}
+
 void ListenerPointCloud::onNewData(const royale::SparsePointCloud * data)
 {
-	cout << "retrieve point cloud ..." << endl;
-	
-	// save_royale_xyzcPoints(data, "current_frame.txt");
+	save_royale_xyzcPoints(data);
 
-	if (++m_local_trigger_count == m_trigger_count)
+	add_point_cloud_visualization(m_viewer_ptr, m_cloud_ptr);
+
+	if (SAVEPOINTCLOUD)
 	{
-		save_royale_xyzcPoints(data, this->m_points, 0.5);
-		m_local_trigger_count = 0;
+		std::string save_filename = get_current_date() + ".bin";
+		write_point_cloud_binary(m_cloud_ptr, save_filename);
+		std::cout << "write to" << save_filename << "(" << m_cloud_ptr->points.size() << ")" << std::endl;
+		SAVEPOINTCLOUD = false;
 	}
+
+	// clear points
+	m_cloud_ptr->clear();
 }
 
-pcl::PointCloud<pcl::PointXYZ>::Ptr ListenerPointCloud::get_cloud_ptr() const
+pcl::PointCloud<PCFORMAT>::Ptr ListenerPointCloud::get_cloud_ptr() const
 {
 	return this->m_cloud_ptr;
-}
-
-std::vector<pointXYZ> ListenerPointCloud::get_points() const
-{
-	return this->m_points;
-}
-
-void ListenerPointCloud::set_trigger_count(size_t _trigger_count)
-{
-	this->m_trigger_count = _trigger_count;
 }
 
 ListenerDepth::ListenerDepth()
@@ -213,4 +171,34 @@ ListenerDepth::~ListenerDepth()
 void ListenerDepth::onNewData(const royale::DepthImage * data)
 {
 	cout << "retrieve depth image ..." << endl;
+}
+
+void add_point_cloud_visualization(pcl::visualization::PCLVisualizer::Ptr viewer_ptr, pcl::PointCloud<PCFORMAT>::Ptr m_cloud_ptr)
+{
+	if (!m_cloud_ptr->points.empty())
+	{
+		m_cloud_ptr->width = m_cloud_ptr->points.size();
+		m_cloud_ptr->height = 1;
+		// Keep the same name as shown in main function
+		viewer_ptr->updatePointCloud<PCFORMAT>(m_cloud_ptr, "cloud");
+	}
+}
+
+void write_point_cloud_binary(pcl::PointCloud<PCFORMAT>::Ptr m_cloud_ptr, const std::string filename)
+{
+	FILE * stream = fopen(filename.c_str(), "wb");
+	fwrite((void *)&m_cloud_ptr->points.at(0), sizeof(float), 4 * m_cloud_ptr->points.size(), stream);
+	fclose(stream);
+}
+
+std::string get_current_date()
+{
+	time_t tt = time(NULL);
+	struct tm *stm = localtime(&tt);
+
+	char tmp[32];
+	sprintf(tmp, "%04d-%02d-%02d-%02d-%02d-%02d", 1900 + stm->tm_year, 1 + stm->tm_mon, stm->tm_mday, stm->tm_hour,
+		stm->tm_min, stm->tm_sec);
+
+	return std::string(tmp);
 }
