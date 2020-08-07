@@ -147,7 +147,7 @@ void ListenerPointCloud::onNewData(const royale::SparsePointCloud * data)
 	{
 		std::string save_filename = get_current_date() + ".bin";
 		write_point_cloud_binary(m_cloud_ptr, save_filename);
-		std::cout << "write to" << save_filename << "(" << m_cloud_ptr->points.size() << ")" << std::endl;
+		std::cout << "write to " << save_filename << "(" << m_cloud_ptr->points.size() << ")" << std::endl;
 		SAVEPOINTCLOUD = false;
 	}
 

@@ -14,7 +14,6 @@
 #define NOMINMAX
 
 using namespace royale;
-using namespace std;
 
 typedef pcl::PointXYZI PCFORMAT;
 

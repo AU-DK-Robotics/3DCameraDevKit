@@ -1,6 +1,5 @@
 #include "PMDCamera.h"
 
-static int save_count = 0;
 void keyboardEventOccurred(const pcl::visualization::KeyboardEvent &event, void* viewer_void)
 {
 	boost::shared_ptr<pcl::visualization::PCLVisualizer> viewer = *static_cast<boost::shared_ptr<pcl::visualization::PCLVisualizer> *>(viewer_void);
@@ -10,7 +9,6 @@ void keyboardEventOccurred(const pcl::visualization::KeyboardEvent &event, void*
 		SAVEPOINTCLOUD = true;
 	}
 }
-#endif // SHOWCLOUD
 
 int main(int argc, char *argv[])
 {
