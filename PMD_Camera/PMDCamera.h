@@ -4,11 +4,14 @@
 #include <pcl/common/common_headers.h>
 #include <pcl/visualization/pcl_visualizer.h>
 #include <pcl/io/auto_io.h>
+#include <pcl/common/geometry.h>
 
 #include <royale.hpp>
 #include <iostream>
 #include <fstream>
 #include <mutex>
+#include <chrono>
+#include <thread>
 #include <Windows.h>
 
 #define NOMINMAX
@@ -35,13 +38,13 @@ public:
 	void set_viewer_ptr(pcl::visualization::PCLVisualizer::Ptr viewer_ptr);
 
 	void onNewData(const royale::SparsePointCloud *data) override;
-
-	pcl::PointCloud<PCFORMAT>::Ptr get_cloud_ptr() const;
+	
+	std::vector<pcl::PointCloud<PCFORMAT>::Ptr> & get_cloud_ptr();
 
 private:
 	void save_royale_xyzcPoints(const royale::SparsePointCloud * data);
 
-	pcl::PointCloud<PCFORMAT>::Ptr m_cloud_ptr;
+	std::vector<pcl::PointCloud<PCFORMAT>::Ptr> m_cloud_ptr_vec;
 
 	pcl::visualization::PCLVisualizer::Ptr m_viewer_ptr;
 };
@@ -101,6 +104,8 @@ public:
 
 	// It should be stopped after use. Otherwise, it will result in failure to start again.
 	int stop_capture();
+
+	pcl::PointCloud<PCFORMAT>::Ptr get_visualization_cloud_ptr();
 
 private:
 

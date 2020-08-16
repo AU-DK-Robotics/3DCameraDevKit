@@ -1,5 +1,6 @@
 #include "PMDCamera.h"
 
+std::mutex mutex;
 bool SAVEPOINTCLOUD = false;
 
 PMDCamera::PMDCamera(pcl::visualization::PCLVisualizer::Ptr viewer_ptr)
@@ -105,8 +106,15 @@ int PMDCamera::stop_capture()
 	return 0;
 }
 
+pcl::PointCloud<PCFORMAT>::Ptr PMDCamera::get_visualization_cloud_ptr()
+{
+	return m_listener_point_cloud.get_cloud_ptr()[0];
+}
+
 void ListenerPointCloud::save_royale_xyzcPoints(const royale::SparsePointCloud * data)
 {
+	m_cloud_ptr_vec[1]->clear();
+
 	PCFORMAT p;
 	for (size_t i = 0; i < data->xyzcPoints.size(); i += 4)
 	{
@@ -115,15 +123,14 @@ void ListenerPointCloud::save_royale_xyzcPoints(const royale::SparsePointCloud *
 		p.z = data->xyzcPoints.at(i + 2),
 		p.intensity = data->xyzcPoints.at(i + 3);
 
-		m_cloud_ptr->points.push_back(p);
+		m_cloud_ptr_vec[1]->points.push_back(p);
 	}
-	//std::cout << "point size=" << m_cloud_ptr->points.size() << std::endl;
+	std::swap(m_cloud_ptr_vec[0], m_cloud_ptr_vec[1]);
 }
 
 ListenerPointCloud::ListenerPointCloud()
-	:m_cloud_ptr(new pcl::PointCloud<PCFORMAT>())
 {
-
+	m_cloud_ptr_vec.resize(2, boost::make_shared<pcl::PointCloud<PCFORMAT>>());
 }
 
 
@@ -141,23 +148,18 @@ void ListenerPointCloud::onNewData(const royale::SparsePointCloud * data)
 {
 	save_royale_xyzcPoints(data);
 
-	add_point_cloud_visualization(m_viewer_ptr, m_cloud_ptr);
-
 	if (SAVEPOINTCLOUD)
 	{
 		std::string save_filename = get_current_date() + ".bin";
-		write_point_cloud_binary(m_cloud_ptr, save_filename);
-		std::cout << "write to " << save_filename << "(" << m_cloud_ptr->points.size() << ")" << std::endl;
+		write_point_cloud_binary(m_cloud_ptr_vec[0], save_filename);
+		std::cout << "write to " << save_filename << "(" << m_cloud_ptr_vec[0]->points.size() << ")" << std::endl;
 		SAVEPOINTCLOUD = false;
 	}
-
-	// clear points
-	m_cloud_ptr->clear();
 }
 
-pcl::PointCloud<PCFORMAT>::Ptr ListenerPointCloud::get_cloud_ptr() const
+std::vector<pcl::PointCloud<PCFORMAT>::Ptr>& ListenerPointCloud::get_cloud_ptr()
 {
-	return this->m_cloud_ptr;
+	return m_cloud_ptr_vec;
 }
 
 ListenerDepth::ListenerDepth()
@@ -179,8 +181,10 @@ void add_point_cloud_visualization(pcl::visualization::PCLVisualizer::Ptr viewer
 	{
 		m_cloud_ptr->width = m_cloud_ptr->points.size();
 		m_cloud_ptr->height = 1;
+
 		// Keep the same name as shown in main function
-		viewer_ptr->updatePointCloud<PCFORMAT>(m_cloud_ptr, "cloud");
+		pcl::visualization::PointCloudColorHandlerGenericField<PCFORMAT> fildColor(m_cloud_ptr, "z");
+		viewer_ptr->updatePointCloud<PCFORMAT>(m_cloud_ptr, fildColor, "cloud");
 	}
 }
 
