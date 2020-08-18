@@ -47,6 +47,8 @@ private:
 	std::vector<pcl::PointCloud<PCFORMAT>::Ptr> m_cloud_ptr_vec;
 
 	pcl::visualization::PCLVisualizer::Ptr m_viewer_ptr;
+
+	size_t m_frame_count;
 };
 
 class ListenerDepth : public IDepthImageListener

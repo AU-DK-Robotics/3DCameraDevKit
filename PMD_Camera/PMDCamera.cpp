@@ -125,12 +125,13 @@ void ListenerPointCloud::save_royale_xyzcPoints(const royale::SparsePointCloud *
 
 		m_cloud_ptr_vec[1]->points.push_back(p);
 	}
-	std::swap(m_cloud_ptr_vec[0], m_cloud_ptr_vec[1]);
 }
 
 ListenerPointCloud::ListenerPointCloud()
 {
 	m_cloud_ptr_vec.resize(2, boost::make_shared<pcl::PointCloud<PCFORMAT>>());
+	
+	m_frame_count = 0;
 }
 
 
@@ -146,15 +147,17 @@ void ListenerPointCloud::set_viewer_ptr(pcl::visualization::PCLVisualizer::Ptr v
 
 void ListenerPointCloud::onNewData(const royale::SparsePointCloud * data)
 {
+	// save to m_cloud_ptr_vec[1]
 	save_royale_xyzcPoints(data);
 
 	if (SAVEPOINTCLOUD)
 	{
 		std::string save_filename = get_current_date() + ".bin";
-		write_point_cloud_binary(m_cloud_ptr_vec[0], save_filename);
-		std::cout << "write to " << save_filename << "(" << m_cloud_ptr_vec[0]->points.size() << ")" << std::endl;
+		write_point_cloud_binary(m_cloud_ptr_vec[1], save_filename);
+		std::cout << "[" << ++m_frame_count << "]" << "write to " << save_filename << "(" << m_cloud_ptr_vec[1]->points.size() << ")" << std::endl;
 		SAVEPOINTCLOUD = false;
 	}
+	std::swap(m_cloud_ptr_vec[0], m_cloud_ptr_vec[1]);
 }
 
 std::vector<pcl::PointCloud<PCFORMAT>::Ptr>& ListenerPointCloud::get_cloud_ptr()
@@ -190,9 +193,9 @@ void add_point_cloud_visualization(pcl::visualization::PCLVisualizer::Ptr viewer
 
 void write_point_cloud_binary(pcl::PointCloud<PCFORMAT>::Ptr m_cloud_ptr, const std::string filename)
 {
-	FILE * stream = fopen(filename.c_str(), "wb");
-	fwrite((void *)&m_cloud_ptr->points.at(0), sizeof(float), 4 * m_cloud_ptr->points.size(), stream);
-	fclose(stream);
+	ofstream fout(filename.c_str(), ios::out | ios::binary);
+	fout.write((char *)m_cloud_ptr->points.data(), sizeof(PCFORMAT) * m_cloud_ptr->points.size());
+	fout.close();
 }
 
 std::string get_current_date()

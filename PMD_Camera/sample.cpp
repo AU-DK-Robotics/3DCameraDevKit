@@ -68,7 +68,7 @@ int main(int argc, char *argv[])
 
 	you should use 'get_camera_size' to see camera_index[from 0 to camera_size].
 	*/
-	pmd_camera.init_camera(0, 6);
+	pmd_camera.init_camera(0, 2);
 
 	pmd_camera.set_camera_data_mode(0);
 
