@@ -22,7 +22,11 @@ typedef pcl::PointXYZI PCFORMAT;
 
 void add_point_cloud_visualization(pcl::visualization::PCLVisualizer::Ptr viewer_ptr, pcl::PointCloud<PCFORMAT>::Ptr m_cloud_ptr);
 
+// need to convert before visualization
 void write_point_cloud_binary(pcl::PointCloud<PCFORMAT>::Ptr m_cloud_ptr, const std::string filename);
+
+// dont need to convert before visualization
+void write_point_cloud_acsii(pcl::PointCloud<PCFORMAT>::Ptr m_cloud_ptr, const std::string filename);
 
 std::string get_current_date();
 
@@ -41,6 +45,8 @@ public:
 	
 	std::vector<pcl::PointCloud<PCFORMAT>::Ptr> & get_cloud_ptr();
 
+	void set_saving_type(const std::string & type);
+
 private:
 	void save_royale_xyzcPoints(const royale::SparsePointCloud * data);
 
@@ -49,6 +55,8 @@ private:
 	pcl::visualization::PCLVisualizer::Ptr m_viewer_ptr;
 
 	size_t m_frame_count;
+
+	std::string m_saving_type;
 };
 
 class ListenerDepth : public IDepthImageListener
@@ -108,6 +116,9 @@ public:
 	int stop_capture();
 
 	pcl::PointCloud<PCFORMAT>::Ptr get_visualization_cloud_ptr();
+
+	// only "txt" or "bin"
+	void set_saving_type(const std::string type);
 
 private:
 

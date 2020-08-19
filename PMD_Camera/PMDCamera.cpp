@@ -111,6 +111,11 @@ pcl::PointCloud<PCFORMAT>::Ptr PMDCamera::get_visualization_cloud_ptr()
 	return m_listener_point_cloud.get_cloud_ptr()[0];
 }
 
+void PMDCamera::set_saving_type(const std::string type)
+{
+	m_listener_point_cloud.set_saving_type(type);
+}
+
 void ListenerPointCloud::save_royale_xyzcPoints(const royale::SparsePointCloud * data)
 {
 	m_cloud_ptr_vec[1]->clear();
@@ -125,6 +130,8 @@ void ListenerPointCloud::save_royale_xyzcPoints(const royale::SparsePointCloud *
 
 		m_cloud_ptr_vec[1]->points.push_back(p);
 	}
+	m_cloud_ptr_vec[1]->width = m_cloud_ptr_vec[1]->points.size();
+	m_cloud_ptr_vec[1]->height = 1;
 }
 
 ListenerPointCloud::ListenerPointCloud()
@@ -132,6 +139,8 @@ ListenerPointCloud::ListenerPointCloud()
 	m_cloud_ptr_vec.resize(2, boost::make_shared<pcl::PointCloud<PCFORMAT>>());
 	
 	m_frame_count = 0;
+
+	m_saving_type = "bin";
 }
 
 
@@ -152,8 +161,17 @@ void ListenerPointCloud::onNewData(const royale::SparsePointCloud * data)
 
 	if (SAVEPOINTCLOUD)
 	{
-		std::string save_filename = get_current_date() + ".bin";
-		write_point_cloud_binary(m_cloud_ptr_vec[1], save_filename);
+		std::string save_filename = get_current_date();
+		if (m_saving_type == "bin")
+		{
+			save_filename = save_filename + ".bin";
+			write_point_cloud_binary(m_cloud_ptr_vec[1], save_filename);
+		}
+		else if (m_saving_type == "txt")
+		{
+			save_filename = save_filename + ".pcd";
+			write_point_cloud_acsii(m_cloud_ptr_vec[1], save_filename);
+		}
 		std::cout << "[" << ++m_frame_count << "]" << "write to " << save_filename << "(" << m_cloud_ptr_vec[1]->points.size() << ")" << std::endl;
 		SAVEPOINTCLOUD = false;
 	}
@@ -163,6 +181,11 @@ void ListenerPointCloud::onNewData(const royale::SparsePointCloud * data)
 std::vector<pcl::PointCloud<PCFORMAT>::Ptr>& ListenerPointCloud::get_cloud_ptr()
 {
 	return m_cloud_ptr_vec;
+}
+
+void ListenerPointCloud::set_saving_type(const std::string & type)
+{
+	m_saving_type = type;
 }
 
 ListenerDepth::ListenerDepth()
@@ -182,9 +205,6 @@ void add_point_cloud_visualization(pcl::visualization::PCLVisualizer::Ptr viewer
 {
 	if (!m_cloud_ptr->points.empty())
 	{
-		m_cloud_ptr->width = m_cloud_ptr->points.size();
-		m_cloud_ptr->height = 1;
-
 		// Keep the same name as shown in main function
 		pcl::visualization::PointCloudColorHandlerGenericField<PCFORMAT> fildColor(m_cloud_ptr, "z");
 		viewer_ptr->updatePointCloud<PCFORMAT>(m_cloud_ptr, fildColor, "cloud");
@@ -196,6 +216,12 @@ void write_point_cloud_binary(pcl::PointCloud<PCFORMAT>::Ptr m_cloud_ptr, const 
 	ofstream fout(filename.c_str(), ios::out | ios::binary);
 	fout.write((char *)m_cloud_ptr->points.data(), sizeof(PCFORMAT) * m_cloud_ptr->points.size());
 	fout.close();
+}
+
+void write_point_cloud_acsii(pcl::PointCloud<PCFORMAT>::Ptr m_cloud_ptr, const std::string filename)
+{
+	if (!m_cloud_ptr->points.empty())
+		pcl::io::savePCDFile(filename, *m_cloud_ptr);
 }
 
 std::string get_current_date()

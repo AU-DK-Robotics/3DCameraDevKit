@@ -32,22 +32,43 @@ void remove_closest_points(pcl::PointCloud<PCFORMAT>::Ptr & cloud, float radius)
 	cloud = new_cloud;
 }
 
+
 int main(int argc, char *argv[])
 {
-	pcl::visualization::PCLVisualizer::Ptr viewer(new pcl::visualization::PCLVisualizer("3D Viewer"));
+	if (argc != 3) return -1;
 
-	PMDCamera pmd_camera(viewer);
+	float remove_radius = std::stof(argv[1]);
+	std::string save_type = std::string(argv[2]);
 
 	size_t camera_size = 0;
-
-	float remove_radius = 0.5;
-
+	pcl::visualization::PCLVisualizer::Ptr viewer(new pcl::visualization::PCLVisualizer("3D Viewer"));
+	PMDCamera pmd_camera(viewer);
 	pmd_camera.get_camera_size(camera_size);
+	pmd_camera.set_saving_type(save_type);
+
+
+	/*
+		parameters description
+	*/
 
 	cout
 		<< "detected " << camera_size << " camera" << endl
 		<< "remove points within " << remove_radius << "m" << endl
-		<< "pressing 's' means to save current frame, 'q' to quit" << std::endl;
+		<< "'s' to save current frame, 'q' to quit." << std::endl;
+	if (save_type == "txt")
+	{
+		std::cout << "saving point cloud will be saved in ascii." << std::endl;
+	}
+	else if (save_type == "bin")
+	{
+		std::cout << "saving point cloud will be saved in binary." << std::endl;
+	}
+	else
+	{
+		std::cout << "please input \"txt\" or \"bin\" as a type of saving file" << std::endl;
+		return -1;
+	}
+
 
 	/*
 	\param[in] camera_index before it, you have to know which camera you want to initialize
