@@ -2,9 +2,12 @@
 
 Retrieve point cloud or depth image using PMD camera(pico_monstar)
 
+![PMD_Camera](./images/pico_monstar.png)
+
 ## Requirements
 
 - PCL 1.8.1+
+- Royale SDK
 
 ## Get&Show point cloud using PMD camera
 
