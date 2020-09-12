@@ -5,6 +5,7 @@
 #include <pcl/visualization/pcl_visualizer.h>
 #include <pcl/io/auto_io.h>
 #include <pcl/common/geometry.h>
+#include <pcl/filters/passthrough.h>
 
 #include <royale.hpp>
 #include <iostream>
@@ -16,6 +17,7 @@
 
 #define NOMINMAX
 
+extern std::mutex pointcloud_mutex;
 using namespace royale;
 
 typedef pcl::PointXYZI PCFORMAT;
@@ -47,8 +49,12 @@ public:
 
 	void set_saving_type(const std::string & type);
 
+	void set_capture_range(float min_x, float max_x, float min_y, float max_y, float min_z, float max_z);
+
 private:
 	void save_royale_xyzcPoints(const royale::SparsePointCloud * data);
+
+	void filter_point_cloud();
 
 	std::vector<pcl::PointCloud<PCFORMAT>::Ptr> m_cloud_ptr_vec;
 
@@ -57,6 +63,8 @@ private:
 	size_t m_frame_count;
 
 	std::string m_saving_type;
+
+	std::vector<float> m_capture_range;
 };
 
 class ListenerDepth : public IDepthImageListener
@@ -119,6 +127,8 @@ public:
 
 	// only "txt" or "bin"
 	void set_saving_type(const std::string type);
+
+	void set_capture_range(float min_x, float max_x, float min_y, float max_y, float min_z, float max_z);
 
 private:
 

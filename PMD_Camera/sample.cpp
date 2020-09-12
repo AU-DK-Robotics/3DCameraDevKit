@@ -35,17 +35,23 @@ void remove_closest_points(pcl::PointCloud<PCFORMAT>::Ptr & cloud, float radius)
 
 int main(int argc, char *argv[])
 {
-	if (argc != 3) return -1;
+	if (argc != 8) return -1;
 
-	float remove_radius = std::stof(argv[1]);
-	std::string save_type = std::string(argv[2]);
+	float 
+		min_x = std::stof(argv[1]),
+		max_x = std::stof(argv[2]),
+		min_y = std::stof(argv[3]),
+		max_y = std::stof(argv[4]),
+		min_z = std::stof(argv[5]),
+		max_z = std::stof(argv[6]);
+	std::string save_type = std::string(argv[7]);
 
 	size_t camera_size = 0;
 	pcl::visualization::PCLVisualizer::Ptr viewer(new pcl::visualization::PCLVisualizer("3D Viewer"));
 	PMDCamera pmd_camera(viewer);
 	pmd_camera.get_camera_size(camera_size);
 	pmd_camera.set_saving_type(save_type);
-
+	pmd_camera.set_capture_range(min_x, max_x, min_y, max_y, min_z, max_z);
 
 	/*
 		parameters description
@@ -53,7 +59,7 @@ int main(int argc, char *argv[])
 
 	cout
 		<< "detected " << camera_size << " camera" << endl
-		<< "remove points within " << remove_radius << "m" << endl
+		<< "point cloud range:" << min_x << " " << max_x << " " << min_y << " " << max_y << " " << min_z << " " << max_z << "m" << endl
 		<< "'s' to save current frame, 'q' to quit." << std::endl;
 	if (save_type == "txt")
 	{
@@ -89,7 +95,7 @@ int main(int argc, char *argv[])
 
 	you should use 'get_camera_size' to see camera_index[from 0 to camera_size].
 	*/
-	pmd_camera.init_camera(0, 2);
+	pmd_camera.init_camera(0, 5);
 
 	pmd_camera.set_camera_data_mode(0);
 
@@ -107,13 +113,19 @@ int main(int argc, char *argv[])
 
 	while (!viewer->wasStopped())
 	{
+		pcl::PointCloud<PCFORMAT>::Ptr to_show_point_cloud(new pcl::PointCloud<PCFORMAT>);
 		pcl::PointCloud<PCFORMAT>::Ptr vi_cloud = pmd_camera.get_visualization_cloud_ptr();
-		remove_closest_points(vi_cloud, remove_radius);
-		add_point_cloud_visualization(viewer, vi_cloud);
 
-		viewer->spinOnce(100);
+		{
+			std::lock_guard<std::mutex> guard(pointcloud_mutex);
+			pcl::copyPointCloud(*vi_cloud, *to_show_point_cloud);
+		}
+		to_show_point_cloud->height = 1;
+		to_show_point_cloud->width = to_show_point_cloud->points.size();
+		//remove_closest_points(vi_cloud, remove_radius);
+		add_point_cloud_visualization(viewer, to_show_point_cloud);
+		viewer->spinOnce(33);
 	}
-
 	pmd_camera.stop_capture();
 	return 0;
 }

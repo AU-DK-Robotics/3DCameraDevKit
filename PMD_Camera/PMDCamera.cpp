@@ -1,7 +1,7 @@
 #include "PMDCamera.h"
 
-std::mutex mutex;
 bool SAVEPOINTCLOUD = false;
+std::mutex pointcloud_mutex;
 
 PMDCamera::PMDCamera(pcl::visualization::PCLVisualizer::Ptr viewer_ptr)
 {
@@ -59,7 +59,6 @@ int PMDCamera::init_camera(size_t camera_index, size_t operate_mode)
 		return 1;
 	}
 	return 0;
-
 }
 
 int PMDCamera::set_camera_data_mode(size_t data_mode)
@@ -116,6 +115,11 @@ void PMDCamera::set_saving_type(const std::string type)
 	m_listener_point_cloud.set_saving_type(type);
 }
 
+void PMDCamera::set_capture_range(float min_x, float max_x, float min_y, float max_y, float min_z, float max_z)
+{
+	m_listener_point_cloud.set_capture_range(min_x, max_x, min_y, max_y, min_z, max_z);
+}
+
 void ListenerPointCloud::save_royale_xyzcPoints(const royale::SparsePointCloud * data)
 {
 	m_cloud_ptr_vec[1]->clear();
@@ -132,6 +136,23 @@ void ListenerPointCloud::save_royale_xyzcPoints(const royale::SparsePointCloud *
 	}
 	m_cloud_ptr_vec[1]->width = m_cloud_ptr_vec[1]->points.size();
 	m_cloud_ptr_vec[1]->height = 1;
+}
+
+void ListenerPointCloud::filter_point_cloud()
+{
+	pcl::PassThrough<PCFORMAT> pass;
+	pass.setInputCloud(m_cloud_ptr_vec[1]);
+	pass.setFilterFieldName("x");
+	pass.setFilterLimits(m_capture_range[0], m_capture_range[1]);
+	
+	pass.setFilterFieldName("y");
+	pass.setFilterLimits(m_capture_range[2], m_capture_range[3]);
+
+	pass.setFilterFieldName("z");
+	pass.setFilterLimits(m_capture_range[4], m_capture_range[5]);
+
+	//pass.setFilterLimitsNegative (true);
+	pass.filter(*m_cloud_ptr_vec[1]);
 }
 
 ListenerPointCloud::ListenerPointCloud()
@@ -156,8 +177,11 @@ void ListenerPointCloud::set_viewer_ptr(pcl::visualization::PCLVisualizer::Ptr v
 
 void ListenerPointCloud::onNewData(const royale::SparsePointCloud * data)
 {
+	std::lock_guard<std::mutex> guard(pointcloud_mutex);
 	// save to m_cloud_ptr_vec[1]
 	save_royale_xyzcPoints(data);
+
+	filter_point_cloud();
 
 	if (SAVEPOINTCLOUD)
 	{
@@ -176,6 +200,8 @@ void ListenerPointCloud::onNewData(const royale::SparsePointCloud * data)
 		SAVEPOINTCLOUD = false;
 	}
 	std::swap(m_cloud_ptr_vec[0], m_cloud_ptr_vec[1]);
+
+	//Sleep(200);
 }
 
 std::vector<pcl::PointCloud<PCFORMAT>::Ptr>& ListenerPointCloud::get_cloud_ptr()
@@ -186,6 +212,18 @@ std::vector<pcl::PointCloud<PCFORMAT>::Ptr>& ListenerPointCloud::get_cloud_ptr()
 void ListenerPointCloud::set_saving_type(const std::string & type)
 {
 	m_saving_type = type;
+}
+
+void ListenerPointCloud::set_capture_range(float min_x, float max_x, float min_y, float max_y, float min_z, float max_z)
+{
+	m_capture_range.push_back(min_x);
+	m_capture_range.push_back(max_x);
+	
+	m_capture_range.push_back(min_y);
+	m_capture_range.push_back(max_y);
+
+	m_capture_range.push_back(min_z);
+	m_capture_range.push_back(max_z);
 }
 
 ListenerDepth::ListenerDepth()
