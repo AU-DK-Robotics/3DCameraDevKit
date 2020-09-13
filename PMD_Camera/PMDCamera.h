@@ -7,14 +7,15 @@
 #include <pcl/common/geometry.h>
 #include <pcl/filters/passthrough.h>
 
-#include <royale.hpp>
 #include <iostream>
 #include <fstream>
 #include <mutex>
 #include <chrono>
 #include <thread>
+#include <filesystem>
 #include <Windows.h>
 
+#include <royale.hpp>
 #define NOMINMAX
 
 extern std::mutex pointcloud_mutex;
@@ -51,6 +52,7 @@ public:
 
 	void set_capture_range(float min_x, float max_x, float min_y, float max_y, float min_z, float max_z);
 
+	void set_directory(std::string dir);
 private:
 	void save_royale_xyzcPoints(const royale::SparsePointCloud * data);
 
@@ -65,6 +67,8 @@ private:
 	std::string m_saving_type;
 
 	std::vector<float> m_capture_range;
+
+	std::string m_directory_name;
 };
 
 class ListenerDepth : public IDepthImageListener
@@ -130,6 +134,7 @@ public:
 
 	void set_capture_range(float min_x, float max_x, float min_y, float max_y, float min_z, float max_z);
 
+	void set_directory(std::string directory);
 private:
 
 	ListenerDepth m_listener_depth;

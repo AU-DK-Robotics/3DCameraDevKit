@@ -120,12 +120,19 @@ void PMDCamera::set_capture_range(float min_x, float max_x, float min_y, float m
 	m_listener_point_cloud.set_capture_range(min_x, max_x, min_y, max_y, min_z, max_z);
 }
 
+void PMDCamera::set_directory(std::string directory)
+{
+	m_listener_point_cloud.set_directory(directory);
+}
+
 void ListenerPointCloud::save_royale_xyzcPoints(const royale::SparsePointCloud * data)
 {
 	m_cloud_ptr_vec[1]->clear();
 
+	size_t one_point_size = 4;
+
 	PCFORMAT p;
-	for (size_t i = 0; i < data->xyzcPoints.size(); i += 4)
+	for (size_t i = 0; i < data->xyzcPoints.size(); i += one_point_size)
 	{
 		p.x = data->xyzcPoints.at(i),
 		p.y = data->xyzcPoints.at(i + 1),
@@ -177,30 +184,31 @@ void ListenerPointCloud::set_viewer_ptr(pcl::visualization::PCLVisualizer::Ptr v
 
 void ListenerPointCloud::onNewData(const royale::SparsePointCloud * data)
 {
-	std::lock_guard<std::mutex> guard(pointcloud_mutex);
-	// save to m_cloud_ptr_vec[1]
-	save_royale_xyzcPoints(data);
-
-	filter_point_cloud();
-
-	if (SAVEPOINTCLOUD)
 	{
-		std::string save_filename = get_current_date();
-		if (m_saving_type == "bin")
-		{
-			save_filename = save_filename + ".bin";
-			write_point_cloud_binary(m_cloud_ptr_vec[1], save_filename);
-		}
-		else if (m_saving_type == "txt")
-		{
-			save_filename = save_filename + ".pcd";
-			write_point_cloud_acsii(m_cloud_ptr_vec[1], save_filename);
-		}
-		std::cout << "[" << ++m_frame_count << "]" << "write to " << save_filename << "(" << m_cloud_ptr_vec[1]->points.size() << ")" << std::endl;
-		SAVEPOINTCLOUD = false;
-	}
-	std::swap(m_cloud_ptr_vec[0], m_cloud_ptr_vec[1]);
+		std::lock_guard<std::mutex> guard(pointcloud_mutex);
+		// save to m_cloud_ptr_vec[1]
+		save_royale_xyzcPoints(data);
 
+		filter_point_cloud();
+
+		if (SAVEPOINTCLOUD)
+		{
+			std::string save_filename = get_current_date();
+			if (m_saving_type == "bin")
+			{
+				save_filename = save_filename + ".bin";
+				write_point_cloud_binary(m_cloud_ptr_vec[1], m_directory_name + "/" + save_filename);
+			}
+			else if (m_saving_type == "txt")
+			{
+				save_filename = save_filename + ".pcd";
+				write_point_cloud_acsii(m_cloud_ptr_vec[1], m_directory_name + "/" + save_filename);
+			}
+			std::cout << "[" << ++m_frame_count << "]" << "write to " << save_filename << "(" << m_cloud_ptr_vec[1]->points.size() << ")" << std::endl;
+			SAVEPOINTCLOUD = false;
+		}
+		std::swap(m_cloud_ptr_vec[0], m_cloud_ptr_vec[1]);
+	}
 	//Sleep(200);
 }
 
@@ -224,6 +232,15 @@ void ListenerPointCloud::set_capture_range(float min_x, float max_x, float min_y
 
 	m_capture_range.push_back(min_z);
 	m_capture_range.push_back(max_z);
+}
+
+void ListenerPointCloud::set_directory(std::string dir)
+{
+	if (!std::filesystem::exists(dir))
+	{
+		std::filesystem::create_directory(dir);
+	}
+	m_directory_name = dir;
 }
 
 ListenerDepth::ListenerDepth()
@@ -251,8 +268,24 @@ void add_point_cloud_visualization(pcl::visualization::PCLVisualizer::Ptr viewer
 
 void write_point_cloud_binary(pcl::PointCloud<PCFORMAT>::Ptr m_cloud_ptr, const std::string filename)
 {
-	ofstream fout(filename.c_str(), ios::out | ios::binary);
-	fout.write((char *)m_cloud_ptr->points.data(), sizeof(PCFORMAT) * m_cloud_ptr->points.size());
+	struct my_pointxyzi
+	{
+		float x, y, z, i;
+	};
+	std::vector<my_pointxyzi> my_points;
+	my_points.resize(m_cloud_ptr->points.size());
+	my_pointxyzi mp;
+	for (size_t i = 0; i < m_cloud_ptr->points.size(); i++)
+	{
+		my_points[i].x = m_cloud_ptr->points[i].x;
+		my_points[i].y = m_cloud_ptr->points[i].y;
+		my_points[i].z = m_cloud_ptr->points[i].z;
+		my_points[i].i = m_cloud_ptr->points[i].intensity;
+	}
+
+	ofstream fout(filename, ios::out | ios::binary);
+	size_t PCFORMAT_size = sizeof(my_pointxyzi);
+	fout.write(reinterpret_cast<char *>(my_points.data()), PCFORMAT_size * my_points.size());
 	fout.close();
 }
 

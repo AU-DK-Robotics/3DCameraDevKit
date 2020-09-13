@@ -11,31 +11,9 @@ void keyboardEventOccurred(const pcl::visualization::KeyboardEvent &event, void*
 	}
 }
 
-void remove_closest_points(pcl::PointCloud<PCFORMAT>::Ptr & cloud, float radius)
-{
-	PCFORMAT p;
-	p.x = 0;
-	p.y = 0;
-	p.z = 0;
-	p.intensity = 0;
-
-	pcl::PointCloud<PCFORMAT>::Ptr new_cloud(new pcl::PointCloud<PCFORMAT>);
-
-	for (size_t i = 0; i < cloud->points.size(); ++i)
-	{
-		if (pcl::geometry::distance(cloud->points[i], p) > radius)
-		{
-			new_cloud->push_back(cloud->points[i]);
-		}
-	}
-	//std::cout << "removed point size=" << (cloud->points.size() - new_cloud->points.size()) << std::endl;
-	cloud = new_cloud;
-}
-
-
 int main(int argc, char *argv[])
 {
-	if (argc != 8) return -1;
+	if (argc != 9) return -1;
 
 	float 
 		min_x = std::stof(argv[1]),
@@ -44,7 +22,8 @@ int main(int argc, char *argv[])
 		max_y = std::stof(argv[4]),
 		min_z = std::stof(argv[5]),
 		max_z = std::stof(argv[6]);
-	std::string save_type = std::string(argv[7]);
+	std::string directory = std::string(argv[7]);
+	std::string save_type = std::string(argv[8]);
 
 	size_t camera_size = 0;
 	pcl::visualization::PCLVisualizer::Ptr viewer(new pcl::visualization::PCLVisualizer("3D Viewer"));
@@ -52,7 +31,7 @@ int main(int argc, char *argv[])
 	pmd_camera.get_camera_size(camera_size);
 	pmd_camera.set_saving_type(save_type);
 	pmd_camera.set_capture_range(min_x, max_x, min_y, max_y, min_z, max_z);
-
+	pmd_camera.set_directory(directory);
 	/*
 		parameters description
 	*/
@@ -115,14 +94,12 @@ int main(int argc, char *argv[])
 	{
 		pcl::PointCloud<PCFORMAT>::Ptr to_show_point_cloud(new pcl::PointCloud<PCFORMAT>);
 		pcl::PointCloud<PCFORMAT>::Ptr vi_cloud = pmd_camera.get_visualization_cloud_ptr();
-
 		{
 			std::lock_guard<std::mutex> guard(pointcloud_mutex);
 			pcl::copyPointCloud(*vi_cloud, *to_show_point_cloud);
 		}
 		to_show_point_cloud->height = 1;
 		to_show_point_cloud->width = to_show_point_cloud->points.size();
-		//remove_closest_points(vi_cloud, remove_radius);
 		add_point_cloud_visualization(viewer, to_show_point_cloud);
 		viewer->spinOnce(33);
 	}
