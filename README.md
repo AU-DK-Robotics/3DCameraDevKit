@@ -1,15 +1,23 @@
 # PMDCamera
 
-Retrieve point cloud or depth image using PMD camera(pico_monstar)
+Retrieve point cloud or depth image using PMD camera([pico_monstar](https://pmdtec.com/picofamily/monstar/))
 
 ![PMD_Camera](./images/pico_monstar.png)
 
 ## Requirements
 
 - PCL 1.8.1+
-- Royale SDK
+- Royale SDK (provided by [pico_monstar](https://pmdtec.com/picofamily/monstar/))
 
-## Get&Show point cloud using PMD camera
+## Obtain & Show point cloud using PMD camera
+
+``` shell
+PMD_camera.exe min_x max_x min_y max_y min_z max_z saved_directory_name saved_format[bin/txt]
+
+for example:
+PMD_Camera.exe -0.6 0.6 0.0 0.4 0.1 1.1 today_saved bin
+PMD_Camera.exe -0.6 0.6 0.0 0.4 0.1 1.1 today_saved_2 txt
+```
 
 ![image](./images/sample.png)
 

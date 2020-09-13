@@ -194,15 +194,17 @@ void ListenerPointCloud::onNewData(const royale::SparsePointCloud * data)
 		if (SAVEPOINTCLOUD)
 		{
 			std::string save_filename = get_current_date();
+			save_filename = m_directory_name + "/" + save_filename;
+
 			if (m_saving_type == "bin")
 			{
 				save_filename = save_filename + ".bin";
-				write_point_cloud_binary(m_cloud_ptr_vec[1], m_directory_name + "/" + save_filename);
+				write_point_cloud_binary(m_cloud_ptr_vec[1], save_filename);
 			}
 			else if (m_saving_type == "txt")
 			{
 				save_filename = save_filename + ".pcd";
-				write_point_cloud_acsii(m_cloud_ptr_vec[1], m_directory_name + "/" + save_filename);
+				write_point_cloud_acsii(m_cloud_ptr_vec[1], save_filename);
 			}
 			std::cout << "[" << ++m_frame_count << "]" << "write to " << save_filename << "(" << m_cloud_ptr_vec[1]->points.size() << ")" << std::endl;
 			SAVEPOINTCLOUD = false;
