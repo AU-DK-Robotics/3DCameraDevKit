@@ -203,7 +203,7 @@ void ListenerPointCloud::onNewData(const royale::SparsePointCloud * data)
 			}
 			else if (m_saving_type == "txt")
 			{
-				save_filename = save_filename + ".pcd";
+				save_filename = save_filename + ".txt";
 				write_point_cloud_acsii(m_cloud_ptr_vec[1], save_filename);
 			}
 			std::cout << "[" << ++m_frame_count << "]" << "write to " << save_filename << "(" << m_cloud_ptr_vec[1]->points.size() << ")" << std::endl;
@@ -293,8 +293,15 @@ void write_point_cloud_binary(pcl::PointCloud<PCFORMAT>::Ptr m_cloud_ptr, const 
 
 void write_point_cloud_acsii(pcl::PointCloud<PCFORMAT>::Ptr m_cloud_ptr, const std::string filename)
 {
-	if (!m_cloud_ptr->points.empty())
-		pcl::io::savePCDFile(filename, *m_cloud_ptr);
+	//if (!m_cloud_ptr->points.empty())
+	//	pcl::io::savePCDFile(filename, *m_cloud_ptr);
+	std::ofstream f(filename, std::ios::out);
+	if (!f.is_open()) return;
+
+	for (auto &p : m_cloud_ptr->points)
+		f << p.x << " " << p.y << " " << p.z << " " << p.intensity << "\n";
+
+	f.close();
 }
 
 std::string get_current_date()
