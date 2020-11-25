@@ -31,7 +31,7 @@ void write_point_cloud_binary(pcl::PointCloud<PCFORMAT>::Ptr m_cloud_ptr, const 
 // dont need to convert before visualization
 void write_point_cloud_acsii(pcl::PointCloud<PCFORMAT>::Ptr m_cloud_ptr, const std::string filename);
 
-std::string get_current_date();
+std::string get_current_date(std::vector<int> & current_date);
 
 extern bool SAVEPOINTCLOUD;
 
@@ -53,6 +53,8 @@ public:
 	void set_capture_range(float min_x, float max_x, float min_y, float max_y, float min_z, float max_z);
 
 	void set_directory(std::string dir);
+
+	void set_capture_interval(float second);
 private:
 	void save_royale_xyzcPoints(const royale::SparsePointCloud * data);
 
@@ -63,6 +65,8 @@ private:
 	pcl::visualization::PCLVisualizer::Ptr m_viewer_ptr;
 
 	size_t m_frame_count;
+	float m_last_second;
+	float m_interval_second;
 
 	std::string m_saving_type;
 
@@ -135,6 +139,8 @@ public:
 	void set_capture_range(float min_x, float max_x, float min_y, float max_y, float min_z, float max_z);
 
 	void set_directory(std::string directory);
+
+	void set_capture_interval(float second);
 private:
 
 	ListenerDepth m_listener_depth;

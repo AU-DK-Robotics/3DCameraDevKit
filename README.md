@@ -18,11 +18,17 @@ It should be noted that this repository is not an official guideline but a doabl
 ``` python
 
 # please run following these parameters as below:
-PMD_camera.exe min_x max_x min_y max_y min_z max_z saved_directory_name saved_format[bin/txt]
+PMD_camera.exe min_x max_x min_y max_y min_z max_z saved_directory_name saved_format[bin/txt/auto] interval_time(ms, only for auto)
 
-# for example:
-PMD_Camera.exe -0.6 0.6 0.0 0.4 0.1 1.1 today_saved bin
-PMD_Camera.exe -0.6 0.6 0.0 0.4 0.1 1.1 today_saved_2 txt
+# For example:
+# filter with "-0.6 0.6 0.0 0.4 0.1 1.1", and all data will be saved with .bin, a format that is space saved. 100 is ignored
+PMD_Camera.exe -0.6 0.6 0.0 0.4 0.1 1.1 today_saved bin 100
+
+# filter with "-0.6 0.6 0.0 0.4 0.1 1.1", and all data will be saved with .txt, a format that can be readable by Notepad. 100 is ignored
+PMD_Camera.exe -0.6 0.6 0.0 0.4 0.1 1.1 today_saved_2 txt 100
+
+# filter with "-0.6 0.6 0.0 0.4 0.1 1.1", and all data will be saved with .txt and .bin per 100 milesecond.
+PMD_Camera.exe -0.6 0.6 0.0 0.4 0.1 1.1 today_saved_2 auto 100
 
 # here is the output:
 detected 1 camera

@@ -13,7 +13,7 @@ void keyboardEventOccurred(const pcl::visualization::KeyboardEvent &event, void*
 
 int main(int argc, char *argv[])
 {
-	if (argc != 9) return -1;
+	if (argc != 10) return -1;
 
 	float 
 		min_x = std::stof(argv[1]),
@@ -25,6 +25,9 @@ int main(int argc, char *argv[])
 	std::string directory = std::string(argv[7]);
 	std::string save_type = std::string(argv[8]);
 
+	// only for "auto"
+	float interval_second = std::stof(argv[9]);
+
 	size_t camera_size = 0;
 	pcl::visualization::PCLVisualizer::Ptr viewer(new pcl::visualization::PCLVisualizer("3D Viewer"));
 	PMDCamera pmd_camera(viewer);
@@ -32,6 +35,7 @@ int main(int argc, char *argv[])
 	pmd_camera.set_saving_type(save_type);
 	pmd_camera.set_capture_range(min_x, max_x, min_y, max_y, min_z, max_z);
 	pmd_camera.set_directory(directory);
+
 	/*
 		parameters description
 	*/
@@ -39,18 +43,24 @@ int main(int argc, char *argv[])
 	cout
 		<< "detected " << camera_size << " camera" << endl
 		<< "point cloud range:" << min_x << " " << max_x << " " << min_y << " " << max_y << " " << min_z << " " << max_z << "m" << endl
-		<< "'s' to save current frame, 'q' to quit." << std::endl;
+		<< "'s'  to save current frame, 'q' to quit." << std::endl;
 	if (save_type == "txt")
 	{
-		std::cout << "saving point cloud will be saved in ascii." << std::endl;
+		std::cout << "Saving point cloud will be saved in ascii." << std::endl;
 	}
 	else if (save_type == "bin")
 	{
-		std::cout << "saving point cloud will be saved in binary." << std::endl;
+		std::cout << "Saving point cloud will be saved in binary." << std::endl;
+	}
+	else if (save_type == "auto")
+	{
+		SAVEPOINTCLOUD = true;
+		pmd_camera.set_capture_interval(interval_second);
+		std::cout << "Saving point cloud will be saved in binary automatically." << std::endl;
 	}
 	else
 	{
-		std::cout << "please input \"txt\" or \"bin\" as a type of saving file" << std::endl;
+		std::cout << "Please input \"txt\" or \"bin\" as a type of saving file" << std::endl;
 		return -1;
 	}
 
@@ -74,7 +84,7 @@ int main(int argc, char *argv[])
 
 	you should use 'get_camera_size' to see camera_index[from 0 to camera_size].
 	*/
-	pmd_camera.init_camera(0, 5);
+	pmd_camera.init_camera(0, 1);
 
 	pmd_camera.set_camera_data_mode(0);
 
@@ -84,7 +94,7 @@ int main(int argc, char *argv[])
 	// it might be a bug cause if dont update first the update in other functions will be freezed.
 	viewer->updatePointCloud<pcl::PointXYZI>(cloud, "cloud");
 	viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 2, "cloud");
-	viewer->addCoordinateSystem(1.0);
+	//viewer->addCoordinateSystem(1.0);
 	viewer->initCameraParameters();
 	viewer->registerKeyboardCallback(keyboardEventOccurred, (void*)&viewer);
 

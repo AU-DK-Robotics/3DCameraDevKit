@@ -125,6 +125,11 @@ void PMDCamera::set_directory(std::string directory)
 	m_listener_point_cloud.set_directory(directory);
 }
 
+void PMDCamera::set_capture_interval(float second)
+{
+	m_listener_point_cloud.set_capture_interval(second);
+}
+
 void ListenerPointCloud::save_royale_xyzcPoints(const royale::SparsePointCloud * data)
 {
 	m_cloud_ptr_vec[1]->clear();
@@ -169,6 +174,8 @@ ListenerPointCloud::ListenerPointCloud()
 	m_frame_count = 0;
 
 	m_saving_type = "bin";
+
+	m_last_second = clock();
 }
 
 
@@ -190,28 +197,55 @@ void ListenerPointCloud::onNewData(const royale::SparsePointCloud * data)
 		save_royale_xyzcPoints(data);
 
 		filter_point_cloud();
+		bool operated = false;
+		double current_second = clock();
 
 		if (SAVEPOINTCLOUD)
 		{
-			std::string save_filename = get_current_date();
+			std::vector<int> current_date;
+			std::string save_filename = get_current_date(current_date) + "_" + std::to_string(m_frame_count);
+
 			save_filename = m_directory_name + "/" + save_filename;
+
+			std::string final_save_filename;
 
 			if (m_saving_type == "bin")
 			{
-				save_filename = save_filename + ".bin";
-				write_point_cloud_binary(m_cloud_ptr_vec[1], save_filename);
+				final_save_filename = save_filename + ".bin";
+				write_point_cloud_binary(m_cloud_ptr_vec[1], final_save_filename);
+				SAVEPOINTCLOUD = false;
+				operated = true;
 			}
 			else if (m_saving_type == "txt")
 			{
-				save_filename = save_filename + ".txt";
-				write_point_cloud_acsii(m_cloud_ptr_vec[1], save_filename);
+				final_save_filename = save_filename + ".txt";
+				write_point_cloud_acsii(m_cloud_ptr_vec[1], final_save_filename);
+				SAVEPOINTCLOUD = false;
+				operated = true;
 			}
-			std::cout << "[" << ++m_frame_count << "]" << "write to " << save_filename << "(" << m_cloud_ptr_vec[1]->points.size() << ")" << std::endl;
-			SAVEPOINTCLOUD = false;
+			else if (m_saving_type == "auto")
+			{
+				// "should be always OK" AND "main part of judgement"
+				if (current_second > m_last_second && abs(current_second - m_last_second) > m_interval_second)
+				{
+					final_save_filename = save_filename + ".bin";
+					write_point_cloud_binary(m_cloud_ptr_vec[1], final_save_filename);
+
+					final_save_filename = save_filename + ".txt";
+					write_point_cloud_acsii(m_cloud_ptr_vec[1], final_save_filename);
+					m_last_second = current_second;
+					operated = true;
+				}
+			}
+
+			if (operated)
+			{
+				std::cout << "[" << ++m_frame_count << "]" << "write to " << save_filename << "(" << m_cloud_ptr_vec[1]->points.size() << ")" << std::endl;
+			}
+
 		}
 		std::swap(m_cloud_ptr_vec[0], m_cloud_ptr_vec[1]);
 	}
-	//Sleep(200);
 }
 
 std::vector<pcl::PointCloud<PCFORMAT>::Ptr>& ListenerPointCloud::get_cloud_ptr()
@@ -243,6 +277,11 @@ void ListenerPointCloud::set_directory(std::string dir)
 		std::filesystem::create_directory(dir);
 	}
 	m_directory_name = dir;
+}
+
+void ListenerPointCloud::set_capture_interval(float second)
+{
+	m_interval_second = second;
 }
 
 ListenerDepth::ListenerDepth()
@@ -304,14 +343,18 @@ void write_point_cloud_acsii(pcl::PointCloud<PCFORMAT>::Ptr m_cloud_ptr, const s
 	f.close();
 }
 
-std::string get_current_date()
+std::string get_current_date(std::vector<int> & current_date)
 {
 	time_t tt = time(NULL);
 	struct tm *stm = localtime(&tt);
 
 	char tmp[32];
-	sprintf(tmp, "%04d-%02d-%02d-%02d-%02d-%02d", 1900 + stm->tm_year, 1 + stm->tm_mon, stm->tm_mday, stm->tm_hour,
-		stm->tm_min, stm->tm_sec);
+	sprintf(tmp, "%04d-%02d-%02d-%02d-%02d-%02d",
+		1900 + stm->tm_year, 1 + stm->tm_mon, stm->tm_mday,
+		stm->tm_hour, stm->tm_min, stm->tm_sec);
+	
+	current_date = std::vector<int>{ 1900 + stm->tm_year, 1 + stm->tm_mon, stm->tm_mday, stm->tm_hour, stm->tm_min, stm->tm_sec };
+	current_date.resize(6);
 
 	return std::string(tmp);
 }
