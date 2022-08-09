@@ -72,15 +72,15 @@ int main(int argc, char *argv[])
 	0: indoor room reconstruction, MODE_9_5FPS_1900
 	1: Room scanning indoor navigation, MODE_9_10FPS_900
 	2: 3D object reconstruction, MODE_9_15FPS_600
-	3: Medium size object recongnition or face reconstruction, MODE_9_25FPS_300
+	3: Medium size object recognition or face reconstruction, MODE_9_25FPS_300
 	4: Remote collaboration, MODE_5_35PFS_500
 	5: Small object, MODe_5_45FPS_400
 	6: Hand tracking, MODE_5_60FPS
 	7: Mixed Mode
 	8: Mixed Mode
 	9: low noise extended
-	10: Fast acquistion
-	11: very fast acquistion
+	10: Fast acquisition
+	11: very fast acquisition
 
 	you should use 'get_camera_size' to see camera_index[from 0 to camera_size].
 	*/

@@ -1,19 +1,19 @@
-# PMDCamera
+# PMDCamera (Pico Monstar)
 
-[This](https://pmdtec.com/picofamily/monstar/) is a Time-of-Flight (ToF) camera, which can capture 3D data and up to 60fps. It is easy to deploy for your applications. 
+[**Pico Monstar**](https://pmdtec.com/picofamily/monstar/) is a Time-of-Flight (ToF) camera, which can capture 3D data and up to 60fps, and is easy to deploy for your applications as well. 
 
-It should be noted that this repository is not an official guideline but a doable and practice for using a PMD camera. According to technical specification, please click [here](./specifications) or official website.
+It should be noted that this repository is not an official guideline but a doable and practice for use of a PMD camera, specifically, the **Pico Monstar**. Regarding to technical specification, please click [here](./specifications) or official website to know more details.
 
 <p align="center">
   <img width="460" height="300" src="./images/pico_monstar.png">
 </p>
 
-## Requirements
+## Requirements for development
 
 - PCL 1.8.1+ (for visualization)
-- Royale SDK (provided by [pico_monstar](https://pmdtec.com/picofamily/monstar/))
+- Royale SDK (provided by [pico_monstar](https://pmdtec.com/picofamily/monstar/), if you can not download try to find in "./Specification/*" folder)
 
-## Running [on windows]
+## Running (on windows)
 
 ``` python
 
