@@ -1,6 +1,8 @@
 #ifndef PMDCAMERA_H
 #define PMDCAMERA_H
 
+#include <boost/make_shared.hpp>
+
 #include <pcl/common/common_headers.h>
 #include <pcl/visualization/pcl_visualizer.h>
 #include <pcl/io/auto_io.h>
@@ -20,6 +22,7 @@
 
 extern std::mutex pointcloud_mutex;
 using namespace royale;
+using namespace std;
 
 typedef pcl::PointXYZI PCFORMAT;
 

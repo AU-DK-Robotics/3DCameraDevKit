@@ -10,12 +10,47 @@ It should be noted that this repository is not an official guideline but a doabl
 
 ## Requirements for development
 
-- PCL 1.8.1+ (for visualization)
+- PCL 1.12.1 (for visualization) with VS2019
+
 - Royale SDK (provided by [pico_monstar](https://pmdtec.com/picofamily/monstar/), if you can not download try to find in "./Specification/*" folder)
 
 ## Running (on windows)
 
-``` python
+### New Version
+Only Tested on Windows 10
+
+Make sure "camera_parameters.txt" is placed in the same directory.
+
+``` bash
+#	0: indoor room reconstruction, MODE_9_5FPS_1900
+#	1: Room scanning indoor navigation, MODE_9_10FPS_900
+# 2: 3D object reconstruction, MODE_9_15FPS_600
+#	3: Medium size object recognition or face reconstruction, MODE_9_25FPS_300
+#	4: Remote collaboration, MODE_5_35PFS_500
+#	5: Small object, MODe_5_45FPS_400
+#	6: Hand tracking, MODE_5_60FPS
+#	7: Mixed Mode
+#	8: Mixed Mode
+#	9: low noise extended
+#	10: Fast acquisition
+# 11: very fast acquisition
+operate_mode 1
+min_x -0.6
+max_x 0.6
+min_y 0.0
+max_y 0.4
+min_z 0.1
+max_z 1.1
+saved_directory_name today_saved
+#saved_format only has bin/txt/auto
+saved_format bin
+#ms
+interval_time 100
+```
+
+
+### Older Version
+``` bash
 
 # please run following these parameters as below:
 PMD_camera.exe min_x max_x min_y max_y min_z max_z saved_directory_name saved_format[bin/txt/auto] interval_time(ms, only for auto)

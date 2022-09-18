@@ -11,19 +11,50 @@ void keyboardEventOccurred(const pcl::visualization::KeyboardEvent &event, void*
 	}
 }
 
+void read_parameters_from_file(const std::string filename, std::map<std::string,std::string> &parameter_list)
+{
+	ifstream parameters_file;
+	parameters_file.open(filename, ios::in);
+	if (!parameters_file.is_open())
+	{
+		std::cout << "ERROR open failed with " << filename << std::endl;
+		return;
+	}
+	std::string key, value;
+	std::string line;
+	while (std::getline(parameters_file, line))
+	{
+		if (line[0] == '#')
+			continue;
+
+		std::istringstream sline(line);
+		//std::cout << line << std::endl;
+		if (sline >> key >> value)
+		{
+			parameter_list[key] = value;
+			//std::cout << key << "and" << line << std::endl;
+		}
+	}
+	std::cout << parameter_list.size() << " parameters are read from " << filename << std::endl;
+	parameters_file.close();
+}
+
 int main(int argc, char *argv[])
 {
-	if (argc != 10) return -1;
+	//if (argc != 10) return -1;
+	std::map<std::string, std::string> parameter_list;
+	read_parameters_from_file("camera_parameters.txt", parameter_list);
 
 	float 
-		min_x = std::stof(argv[1]),
-		max_x = std::stof(argv[2]),
-		min_y = std::stof(argv[3]),
-		max_y = std::stof(argv[4]),
-		min_z = std::stof(argv[5]),
-		max_z = std::stof(argv[6]);
-	std::string directory = std::string(argv[7]);
-	std::string save_type = std::string(argv[8]);
+		min_x = std::stof(parameter_list["min_x"]),
+		max_x = std::stof(parameter_list["max_x"]),
+		min_y = std::stof(parameter_list["min_y"]),
+		max_y = std::stof(parameter_list["max_y"]),
+		min_z = std::stof(parameter_list["min_z"]),
+		max_z = std::stof(parameter_list["max_z"]);
+		
+	std::string directory = parameter_list["saved_directory_name"];
+	std::string save_type = parameter_list["saved_format[bin/txt/auto]"];
 
 	// only for "auto"
 	float interval_second = std::stof(argv[9]);
@@ -84,7 +115,7 @@ int main(int argc, char *argv[])
 
 	you should use 'get_camera_size' to see camera_index[from 0 to camera_size].
 	*/
-	pmd_camera.init_camera(0, 1);
+	pmd_camera.init_camera(0, std::stof(parameter_list["operate_mode"]));
 
 	pmd_camera.set_camera_data_mode(0);
 

@@ -169,7 +169,7 @@ void ListenerPointCloud::filter_point_cloud()
 
 ListenerPointCloud::ListenerPointCloud()
 {
-	m_cloud_ptr_vec.resize(2, boost::make_shared<pcl::PointCloud<PCFORMAT>>());
+	m_cloud_ptr_vec.resize(2, std::make_shared<pcl::PointCloud<PCFORMAT>>());
 	
 	m_frame_count = 0;
 
@@ -315,7 +315,7 @@ void write_point_cloud_binary(pcl::PointCloud<PCFORMAT>::Ptr m_cloud_ptr, const 
 	};
 	std::vector<my_pointxyzi> my_points;
 	my_points.resize(m_cloud_ptr->points.size());
-	my_pointxyzi mp;
+	//my_pointxyzi mp;
 	for (size_t i = 0; i < m_cloud_ptr->points.size(); i++)
 	{
 		my_points[i].x = m_cloud_ptr->points[i].x;
