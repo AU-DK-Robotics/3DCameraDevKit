@@ -168,8 +168,9 @@ void ListenerPointCloud::filter_point_cloud()
 }
 
 ListenerPointCloud::ListenerPointCloud()
-{
+{ 
 	m_cloud_ptr_vec.resize(2, std::make_shared<pcl::PointCloud<PCFORMAT>>());
+	// m_cloud_ptr_vec.resize(2, boost::make_shared<pcl::PointCloud<PCFORMAT>>());
 	
 	m_frame_count = 0;
 

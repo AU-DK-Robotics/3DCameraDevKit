@@ -1,0 +1,24 @@
+#	0: indoor room reconstruction, MODE_9_5FPS_1900
+#	1: Room scanning indoor navigation, MODE_9_10FPS_900
+# 2: 3D object reconstruction, MODE_9_15FPS_600
+#	3: Medium size object recognition or face reconstruction, MODE_9_25FPS_300
+#	4: Remote collaboration, MODE_5_35PFS_500
+#	5: Small object, MODe_5_45FPS_400
+#	6: Hand tracking, MODE_5_60FPS
+#	7: Mixed Mode
+#	8: Mixed Mode
+#	9: low noise extended
+#	10: Fast acquisition
+# 11: very fast acquisition
+operate_mode 10
+min_x -0.6
+max_x 0.6
+min_y 0.0
+max_y 0.4
+min_z 0.1
+max_z 1.1
+saved_directory_name for_standard_point_cloud
+#saved_format should be only bin/txt/auto
+saved_format txt
+#ms
+interval_time 100

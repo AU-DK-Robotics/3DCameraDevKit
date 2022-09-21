@@ -8,7 +8,7 @@
 *.sln.docstates
 *.pcd
 *.zip
-*.txt
+#*.txt
 *.bin
 *.py
 

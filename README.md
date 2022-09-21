@@ -10,9 +10,9 @@ It should be noted that this repository is not an official guideline but a doabl
 
 ## Requirements for development
 
-- PCL 1.12.1 (for visualization) with VS2019
+- `PCL 1.8 to 1.12.1 (for visualization) with VS2019/VS2017`
 
-- Royale SDK (provided by [pico_monstar](https://pmdtec.com/picofamily/monstar/), if you can not download try to find in "./Specification/*" folder)
+- Royale SDK (provided by [pico_monstar](https://pmdtec.com/picofamily/monstar/), if you can not download, please try to find in "./Specification/*" folder)
 
 ## Running (on windows)
 
