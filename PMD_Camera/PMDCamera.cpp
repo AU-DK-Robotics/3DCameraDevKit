@@ -168,9 +168,8 @@ void ListenerPointCloud::filter_point_cloud()
 }
 
 ListenerPointCloud::ListenerPointCloud()
-{ 
-	m_cloud_ptr_vec.resize(2, std::make_shared<pcl::PointCloud<PCFORMAT>>());
-	// m_cloud_ptr_vec.resize(2, boost::make_shared<pcl::PointCloud<PCFORMAT>>());
+{
+	m_cloud_ptr_vec.resize(2, boost::make_shared<pcl::PointCloud<PCFORMAT>>());
 	
 	m_frame_count = 0;
 
@@ -229,8 +228,8 @@ void ListenerPointCloud::onNewData(const royale::SparsePointCloud * data)
 				// "should be always OK" AND "main part of judgement"
 				if (current_second > m_last_second && abs(current_second - m_last_second) > m_interval_second)
 				{
-					final_save_filename = save_filename + ".bin";
-					write_point_cloud_binary(m_cloud_ptr_vec[1], final_save_filename);
+					//final_save_filename = save_filename + ".bin";
+					//write_point_cloud_binary(m_cloud_ptr_vec[1], final_save_filename);
 
 					final_save_filename = save_filename + ".txt";
 					write_point_cloud_acsii(m_cloud_ptr_vec[1], final_save_filename);

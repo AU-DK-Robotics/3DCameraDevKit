@@ -45,7 +45,7 @@ int main(int argc, char *argv[])
 	std::map<std::string, std::string> parameter_list;
 	read_parameters_from_file("camera_parameters.txt", parameter_list);
 
-	float 
+	float
 		min_x = std::stof(parameter_list["min_x"]),
 		max_x = std::stof(parameter_list["max_x"]),
 		min_y = std::stof(parameter_list["min_y"]),
@@ -54,10 +54,10 @@ int main(int argc, char *argv[])
 		max_z = std::stof(parameter_list["max_z"]);
 		
 	std::string directory = parameter_list["saved_directory_name"];
-	std::string save_type = parameter_list["saved_format[bin/txt/auto]"];
+	std::string save_type = parameter_list["saved_format"];
 
 	// only for "auto"
-	float interval_second = std::stof(argv[9]);
+	float interval_second = std::stof(parameter_list["interval_time"]);
 
 	size_t camera_size = 0;
 	pcl::visualization::PCLVisualizer::Ptr viewer(new pcl::visualization::PCLVisualizer("3D Viewer"));
@@ -66,6 +66,11 @@ int main(int argc, char *argv[])
 	pmd_camera.set_saving_type(save_type);
 	pmd_camera.set_capture_range(min_x, max_x, min_y, max_y, min_z, max_z);
 	pmd_camera.set_directory(directory);
+
+	if (camera_size == 0)
+	{
+		return -1;
+	}
 
 	/*
 		parameters description
