@@ -44,6 +44,7 @@ int PMDCamera::init_camera(size_t camera_index, size_t operate_mode)
 		cerr << "getUseCases() returned: " << getErrorString(status) << endl;
 		return 1;
 	}
+	std::cout <<"useCases.size() :" << useCases.size() << std::endl;
 
 	for (size_t i = 0; i < useCases.size(); ++i)
 	{

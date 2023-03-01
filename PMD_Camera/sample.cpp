@@ -41,6 +41,7 @@ void read_parameters_from_file(const std::string filename, std::map<std::string,
 
 int main(int argc, char *argv[])
 {
+	vtkObject::GlobalWarningDisplayOff();
 	//if (argc != 10) return -1;
 	std::map<std::string, std::string> parameter_list;
 	read_parameters_from_file("camera_parameters.txt", parameter_list);
@@ -100,7 +101,6 @@ int main(int argc, char *argv[])
 		return -1;
 	}
 
-
 	/*
 	\param[in] camera_index before it, you have to know which camera you want to initialize
 	\param[in] operate_mode See "Getting_Started_CamBoard_pico_monstar.pdf"
@@ -120,8 +120,8 @@ int main(int argc, char *argv[])
 
 	you should use 'get_camera_size' to see camera_index[from 0 to camera_size].
 	*/
-	pmd_camera.init_camera(0, std::stof(parameter_list["operate_mode"]));
 
+	pmd_camera.init_camera(0, std::stof(parameter_list["operate_mode"]));
 	pmd_camera.set_camera_data_mode(0);
 
 	viewer->setBackgroundColor(0, 0, 0);
@@ -130,7 +130,7 @@ int main(int argc, char *argv[])
 	// it might be a bug cause if dont update first the update in other functions will be freezed.
 	viewer->updatePointCloud<pcl::PointXYZI>(cloud, "cloud");
 	viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 2, "cloud");
-	//viewer->addCoordinateSystem(1.0);
+	viewer->addCoordinateSystem(0.5);
 	viewer->initCameraParameters();
 	viewer->registerKeyboardCallback(keyboardEventOccurred, (void*)&viewer);
 
