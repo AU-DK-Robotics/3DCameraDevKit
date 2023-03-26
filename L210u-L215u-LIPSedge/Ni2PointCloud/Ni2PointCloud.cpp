@@ -149,6 +149,7 @@ int main(int argc, char* argv[])
 			{
 				final_save_filename = save_filename + ".txt";
 				write_point_cloud_acsii(to_show_point_cloud, final_save_filename);
+				++frame_count;
 			}
 			else if (save_type == "auto" && ((last_second - current_second) > interval_second))
 			{

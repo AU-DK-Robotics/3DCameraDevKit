@@ -1,6 +1,6 @@
 # PMDCamera (Pico Monstar)
 
-[**Pico Monstar**](https://pmdtec.com/picofamily/monstar/) is a Time-of-Flight (ToF) camera, which can capture 3D data and up to 60fps and is easy to deploy for your applications as well. 
+[**Pico Monstar**](https://pmdtec.com/picofamily/monstar/) is a Time-of-Flight (ToF) camera, which can capture 3D data and up to 60fps and is easy to deploy for your applications as well.
 
 It should be noted that this repository is an unofficial guideline but a doable practice for the use of a PMD camera, **Pico Monstar**. A 3D model and office guidelines can be found in [Document](./Document) folder.
 
@@ -15,7 +15,7 @@ It should be noted that this repository is an unofficial guideline but a doable 
 
 Here, 3.23 and 4.22 versions of the RoyaleSDK are provided: [RoyaleSDK_3.23](https://1drv.ms/u/s!AnRiouA_fmTVio1l2b-qfWXoRU4lnA?e=S1jZzw) and [RoyaleSDK_4.22](https://1drv.ms/u/s!AnRiouA_fmTVio1kp4R1T6GU50FV1w?e=YebfKL) 
 
-## Running
+## Run
 
 *Only Tested on **Windows 10***
 
@@ -49,6 +49,7 @@ interval_time 100
 ```
 
 ## Screenshot
+
 <p align="center">
   <img width="460" height="300" src="./Screenshots/sample.png">
 </p>
