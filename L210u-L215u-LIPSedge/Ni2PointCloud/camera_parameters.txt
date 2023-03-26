@@ -1,0 +1,7 @@
+# for L215u
+saved_directory_name test
+#saved_format should be only bin/txt/auto
+saved_format auto
+#ms
+interval_time 500
+auto_number 120
