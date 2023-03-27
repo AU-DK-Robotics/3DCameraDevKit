@@ -5,7 +5,7 @@
 
 #include <OpenNI.h>
 #include <opencv2/opencv.hpp>
-#include <opencv2/viz/vizcore.hpp>
+//#include <opencv2/viz/vizcore.hpp>
 
 using namespace std;
 using namespace openni;

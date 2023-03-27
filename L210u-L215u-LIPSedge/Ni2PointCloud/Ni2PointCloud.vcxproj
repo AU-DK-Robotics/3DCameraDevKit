@@ -22,7 +22,7 @@
     <ProjectGuid>{9ECE2BB8-DBB1-4CE1-A4C7-5751E8F40B86}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>Ni2PointCloud</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.22000.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -47,7 +47,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -87,8 +87,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>D:\DevEnv\AllinOne\OpenCV-3.4.15_vs2017_x64\include;$(OPENNI2_INCLUDE64);$(IncludePath);$(PCL_ROOT)\3rdParty\VTK\include\vtk-8.1;$(PCL_ROOT)\include\pcl-1.9;$(PCL_ROOT)\3rdParty\Qhull\include;$(PCL_ROOT)\3rdParty\FLANN\include;$(PCL_ROOT)\3rdParty\Eigen\eigen3;$(PCL_ROOT)\3rdParty\Boost\include\boost-1_68;$(PCL_ROOT)\3rdParty\Boost\include\boost-1_68\boost</IncludePath>
-    <LibraryPath>D:\DevEnv\AllinOne\OpenCV-3.4.15_vs2017_x64\x64\vc15\lib;$(OPENNI2_LIB64);$(LibraryPath);$(PCL_ROOT)\3rdParty\VTK\lib;$(PCL_ROOT)\lib;$(PCL_ROOT)\3rdParty\FLANN\lib;$(PCL_ROOT)\3rdParty\Qhull\lib;$(PCL_ROOT)\3rdParty\Boost\lib</LibraryPath>
+    <IncludePath>$(OPENCV_ROOT)\include;$(OPENNI2_INCLUDE64);$(IncludePath);$(PCL_ROOT)\3rdParty\VTK\include\vtk-8.1;$(PCL_ROOT)\include\pcl-1.9;$(PCL_ROOT)\3rdParty\Qhull\include;$(PCL_ROOT)\3rdParty\FLANN\include;$(PCL_ROOT)\3rdParty\Eigen\eigen3;$(PCL_ROOT)\3rdParty\Boost\include\boost-1_68;$(PCL_ROOT)\3rdParty\Boost\include\boost-1_68\boost</IncludePath>
+    <LibraryPath>$(OPENCV_ROOT)\x64\vc15\lib;$(OPENNI2_LIB64);$(LibraryPath);$(PCL_ROOT)\3rdParty\VTK\lib;$(PCL_ROOT)\lib;$(PCL_ROOT)\3rdParty\FLANN\lib;$(PCL_ROOT)\3rdParty\Qhull\lib;$(PCL_ROOT)\3rdParty\Boost\lib</LibraryPath>
     <TargetName>Lips$(ProjectName)</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -176,6 +176,7 @@ xcopy "C:\Program Files (x86)\LIPSToF\RvcLib.dll" "$(TargetDir)/OpenNI2/Drivers"
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;OPENNI_VER=2;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>false</SDLCheck>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

@@ -13,4 +13,6 @@ Click these folder to know your camera:
 
 ## Framework
 The framework of this work is depicted as 
-![The framework of our work](./Image/kit-framework.png).
+<p align="center">
+  <img width="460" height="300" src="./Image/kit-framework.png">
+</p>
