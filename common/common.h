@@ -4,6 +4,8 @@
 #include <pcl/common/common_headers.h>
 #include <pcl/visualization/pcl_visualizer.h>
 #include <pcl/io/auto_io.h>
+#include <pcl/point_cloud.h>
+#include <pcl/common/transforms.h>
 #include <pcl/common/geometry.h>
 #include <pcl/filters/passthrough.h>
 

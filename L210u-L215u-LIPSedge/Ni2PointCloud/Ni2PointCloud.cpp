@@ -3,7 +3,7 @@
 int main(int argc, char* argv[])
 {
 	std::map<std::string, std::string> parameter_list;
-	read_parameters_from_file("camera_parameters.txt", parameter_list);
+	read_parameters_from_file("camera_parameters_l215u.txt", parameter_list);
 	std::string directory = parameter_list["saved_directory_name"];
 	std::string save_type = parameter_list["saved_format"];
 	float interval_second = std::stof(parameter_list["interval_time"]);
@@ -123,6 +123,16 @@ int main(int argc, char* argv[])
 	size_t frame_count = 0;
 	double current_second = clock();
 
+	Eigen::Matrix4f tsfm(Eigen::Matrix4f::Identity());
+	tsfm(0, 0) = -1;
+	tsfm(1, 1) = -1;
+
+	/*
+	-1 0 0 0
+	0 -1 0 0
+	0  0 1 0
+	0  0 0 1
+	*/
 	while (!viewer->wasStopped())
 	{
 		generateOneFramePointCloud(imgDepth, imgColor, mPointCloud, dFrame, cFrame, vsDepth, vsColor, pointCloud, isColorValid);
@@ -134,6 +144,7 @@ int main(int argc, char* argv[])
 		}
 		to_show_point_cloud->height = 1;
 		to_show_point_cloud->width = to_show_point_cloud->points.size();
+		pcl::transformPointCloud(*to_show_point_cloud, *to_show_point_cloud, tsfm);
 		add_point_cloud_visualization(viewer, to_show_point_cloud);
 
 		if (SAVEPOINTCLOUD || AUTOPOINTCLOUD)
@@ -153,14 +164,16 @@ int main(int argc, char* argv[])
 			}
 			else if (save_type == "auto" && ((last_second - current_second) > interval_second))
 			{
-				current_second = last_second;
-				final_save_filename = save_filename + ".txt";
-				write_point_cloud_acsii(to_show_point_cloud, final_save_filename);
-
 				if (frame_count > auto_number)
 				{
 					break;
 				}
+				current_second = last_second;
+				final_save_filename = save_filename + ".txt";
+				write_point_cloud_acsii(to_show_point_cloud, final_save_filename);
+				std::cout
+					<< '[' << frame_count << '/' << auto_number << ']'
+					<< "saved to " << final_save_filename << std::endl;
 				++frame_count;
 			}
 			SAVEPOINTCLOUD = false;

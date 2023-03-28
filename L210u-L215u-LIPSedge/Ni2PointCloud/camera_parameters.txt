@@ -1,7 +1,7 @@
 # for L215u
-saved_directory_name test
+saved_directory_name eye-in-hand-calibration-joints/joints_1
 #saved_format should be only bin/txt/auto
-saved_format txt
+saved_format auto
 #ms
-interval_time 500
+interval_time 200
 auto_number 120
