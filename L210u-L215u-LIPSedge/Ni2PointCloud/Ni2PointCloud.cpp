@@ -37,7 +37,7 @@ int main(int argc, char* argv[])
 		cout << "ERROR: Cannot create depth stream on device" << endl << endl;
 		return 1;
 	}
-	vsDepth.setMirroringEnabled(false);
+	vsDepth.setMirroringEnabled(true);
 
 	mode = vsDepth.getVideoMode();
 	cout << "Depth VideoMode: " << mode.getResolutionX() << " x " << mode.getResolutionY() << " @ " << mode.getFps() << " FPS";

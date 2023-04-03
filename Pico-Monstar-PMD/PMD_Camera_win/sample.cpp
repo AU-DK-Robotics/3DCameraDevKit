@@ -15,7 +15,7 @@ int main(int argc, char *argv[])
 	vtkObject::GlobalWarningDisplayOff();
 	//if (argc != 10) return -1;
 	std::map<std::string, std::string> parameter_list;
-	read_parameters_from_file("camera_parameters.txt", parameter_list);
+	read_parameters_from_file("camera_parameters_pmd.txt", parameter_list);
 
 	float
 		min_x = std::stof(parameter_list["min_x"]),
