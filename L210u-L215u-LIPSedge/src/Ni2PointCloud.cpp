@@ -1,4 +1,4 @@
-#include "../include/L215u.h"
+﻿#include "../include/L215u.h"
 
 int main(int argc, char* argv[])
 {
@@ -133,6 +133,8 @@ int main(int argc, char* argv[])
 	0  0 1 0
 	0  0 0 1
 	*/
+	std::vector< pcl::PointCloud<PCFORMAT>::Ptr> to_save_points;
+	std::vector<std::string> to_save_points_filename;
 	CameraParam camera_param;
 	loadCameraIntrinsicParam("camera_intrinsicParam.txt", camera_param);
 	while (!viewer->wasStopped())
@@ -171,18 +173,29 @@ int main(int argc, char* argv[])
 				{
 					break;
 				}
+
 				current_second = last_second;
 				final_save_filename = save_filename + ".txt";
-				write_point_cloud_acsii(to_show_point_cloud, final_save_filename);
-				std::cout
-					<< '[' << frame_count << '/' << auto_number << ']'
-					<< "saved to " << final_save_filename << std::endl;
+				//write_point_cloud_acsii(to_show_point_cloud, final_save_filename);
+				//std::cout
+				//	<< '[' << frame_count << '/' << auto_number << ']'
+				//	<< "saved to " << final_save_filename << std::endl;
+
+				to_save_points.push_back(to_show_point_cloud);
+				to_save_points_filename.push_back(final_save_filename);
+
 				++frame_count;
 			}
 			SAVEPOINTCLOUD = false;
 		}
 
 		viewer->spinOnce(33);
+	}
+
+	for (size_t i = 0; i < to_save_points.size(); i++)
+	{
+		write_point_cloud_acsii(to_save_points[i], to_save_points_filename[i]);
+		std::cout << "\r[" << i << "/" << to_save_points.size() << "] saved: " << to_save_points_filename[i] << std::endl;
 	}
 
 	vsDepth.stop();

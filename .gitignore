@@ -272,4 +272,5 @@ __pycache__/
 *2023*.txt
 *.jpg
 *checkpoint.ipynb
+roi*.txt
 
