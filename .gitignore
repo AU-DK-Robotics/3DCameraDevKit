@@ -269,4 +269,7 @@ paket-files/
 __pycache__/
 *.pyc
 
-2023*.txt
+*2023*.txt
+*.jpg
+*checkpoint.ipynb
+

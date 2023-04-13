@@ -5,6 +5,10 @@ VisualStudioVersion = 17.4.33213.308
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Ni2PointCloud", "Ni2PointCloud\Ni2PointCloud.vcxproj", "{9ECE2BB8-DBB1-4CE1-A4C7-5751E8F40B86}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Ni2RGBImage", "Ni2RGBImage\Ni2RGBImage.vcxproj", "{38124F68-EB3B-4CBA-9EAD-D32E7BB793C5}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Ni2CameraMatrix", "Ni2CameraMatrix\Ni2CameraMatrix.vcxproj", "{84A7E6D6-346D-48E6-97D9-7EE7BF2133FA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -21,6 +25,22 @@ Global
 		{9ECE2BB8-DBB1-4CE1-A4C7-5751E8F40B86}.Release|Win32.Build.0 = Release|Win32
 		{9ECE2BB8-DBB1-4CE1-A4C7-5751E8F40B86}.Release|x64.ActiveCfg = Release|x64
 		{9ECE2BB8-DBB1-4CE1-A4C7-5751E8F40B86}.Release|x64.Build.0 = Release|x64
+		{38124F68-EB3B-4CBA-9EAD-D32E7BB793C5}.Debug|Win32.ActiveCfg = Debug|Win32
+		{38124F68-EB3B-4CBA-9EAD-D32E7BB793C5}.Debug|Win32.Build.0 = Debug|Win32
+		{38124F68-EB3B-4CBA-9EAD-D32E7BB793C5}.Debug|x64.ActiveCfg = Debug|x64
+		{38124F68-EB3B-4CBA-9EAD-D32E7BB793C5}.Debug|x64.Build.0 = Debug|x64
+		{38124F68-EB3B-4CBA-9EAD-D32E7BB793C5}.Release|Win32.ActiveCfg = Release|Win32
+		{38124F68-EB3B-4CBA-9EAD-D32E7BB793C5}.Release|Win32.Build.0 = Release|Win32
+		{38124F68-EB3B-4CBA-9EAD-D32E7BB793C5}.Release|x64.ActiveCfg = Release|x64
+		{38124F68-EB3B-4CBA-9EAD-D32E7BB793C5}.Release|x64.Build.0 = Release|x64
+		{84A7E6D6-346D-48E6-97D9-7EE7BF2133FA}.Debug|Win32.ActiveCfg = Debug|Win32
+		{84A7E6D6-346D-48E6-97D9-7EE7BF2133FA}.Debug|Win32.Build.0 = Debug|Win32
+		{84A7E6D6-346D-48E6-97D9-7EE7BF2133FA}.Debug|x64.ActiveCfg = Debug|x64
+		{84A7E6D6-346D-48E6-97D9-7EE7BF2133FA}.Debug|x64.Build.0 = Debug|x64
+		{84A7E6D6-346D-48E6-97D9-7EE7BF2133FA}.Release|Win32.ActiveCfg = Release|Win32
+		{84A7E6D6-346D-48E6-97D9-7EE7BF2133FA}.Release|Win32.Build.0 = Release|Win32
+		{84A7E6D6-346D-48E6-97D9-7EE7BF2133FA}.Release|x64.ActiveCfg = Release|x64
+		{84A7E6D6-346D-48E6-97D9-7EE7BF2133FA}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

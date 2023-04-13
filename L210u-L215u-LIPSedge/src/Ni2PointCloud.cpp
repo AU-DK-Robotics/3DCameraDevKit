@@ -1,4 +1,4 @@
-#include "L215u.h"
+#include "../include/L215u.h"
 
 int main(int argc, char* argv[])
 {
@@ -8,7 +8,7 @@ int main(int argc, char* argv[])
 	std::string save_type = parameter_list["saved_format"];
 	float interval_second = std::stof(parameter_list["interval_time"]);
 	size_t auto_number = (save_type == "auto") ? std::stol(parameter_list["auto_number"]) : INT_MAX;
-	bool AUTOPOINTCLOUD = (save_type == "auto") ? true:false;
+	bool AUTOPOINTCLOUD = (save_type == "auto") ? true : false;
 
 	float hfov, vfov;
 	Status status;
@@ -62,7 +62,7 @@ int main(int argc, char* argv[])
 	}
 	else
 	{
-	vsColor.setMirroringEnabled(false);
+		vsColor.setMirroringEnabled(false);
 	}
 
 	// Check and enable Depth-To-Color image registration
@@ -106,15 +106,15 @@ int main(int argc, char* argv[])
 	Mat mPointCloud;
 	Mat imgDepth, imgColor;
 	//pcl::PointCloud<pcl::PointXYZRGB>::Ptr pointRGB(new pcl::PointCloud<pcl::PointXYZRGB>);
-	pcl::PointCloud<pcl::PointXYZ>::Ptr pointCloud(new pcl::PointCloud<pcl::PointXYZ>);
+	pcl::PointCloud<PCFORMAT>::Ptr pointCloud(new pcl::PointCloud<PCFORMAT>);
 
 	vtkObject::GlobalWarningDisplayOff();
 	pcl::visualization::PCLVisualizer::Ptr viewer(new pcl::visualization::PCLVisualizer("3D Viewer"));
 	viewer->setBackgroundColor(0, 0, 0);
-	pcl::PointCloud<pcl::PointXYZI>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZI>);
-	viewer->addPointCloud<pcl::PointXYZI>(cloud, "cloud");
+	pcl::PointCloud<PCFORMAT>::Ptr cloud(new pcl::PointCloud<PCFORMAT>);
+	viewer->addPointCloud<PCFORMAT>(cloud, "cloud");
 	// it might be a bug cause if dont update first the update in other functions will be freezed.
-	viewer->updatePointCloud<pcl::PointXYZI>(cloud, "cloud");
+	viewer->updatePointCloud<PCFORMAT>(cloud, "cloud");
 	viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1, "cloud");
 	viewer->addCoordinateSystem(0.5);
 	viewer->initCameraParameters();
@@ -133,9 +133,11 @@ int main(int argc, char* argv[])
 	0  0 1 0
 	0  0 0 1
 	*/
+	CameraParam camera_param;
+	loadCameraIntrinsicParam("camera_intrinsicParam.txt", camera_param);
 	while (!viewer->wasStopped())
 	{
-		generateOneFramePointCloud(imgDepth, imgColor, mPointCloud, dFrame, cFrame, vsDepth, vsColor, pointCloud, isColorValid);
+		generateOneFramePointCloud(imgDepth, imgColor, mPointCloud, dFrame, cFrame, vsDepth, vsColor, pointCloud, isColorValid, camera_param);
 
 		pcl::PointCloud<PCFORMAT>::Ptr to_show_point_cloud(new pcl::PointCloud<PCFORMAT>);
 		{
@@ -146,6 +148,7 @@ int main(int argc, char* argv[])
 		to_show_point_cloud->width = to_show_point_cloud->points.size();
 		pcl::transformPointCloud(*to_show_point_cloud, *to_show_point_cloud, tsfm);
 		add_point_cloud_visualization(viewer, to_show_point_cloud);
+		//std::cout << "Point size:" << to_show_point_cloud->width << std::endl;
 
 		if (SAVEPOINTCLOUD || AUTOPOINTCLOUD)
 		{
@@ -178,20 +181,20 @@ int main(int argc, char* argv[])
 			}
 			SAVEPOINTCLOUD = false;
 		}
-		
+
 		viewer->spinOnce(33);
 	}
 
-    vsDepth.stop();
-    vsDepth.destroy();
-    if ( isColorValid )
-    {
-        vsColor.stop();
-        vsColor.destroy();
-    }
+	vsDepth.stop();
+	vsDepth.destroy();
+	if (isColorValid)
+	{
+		vsColor.stop();
+		vsColor.destroy();
+	}
 
-    devDevice.close();
-    OpenNI::shutdown();
+	devDevice.close();
+	OpenNI::shutdown();
 
-    return 0;
+	return 0;
 }

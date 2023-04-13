@@ -73,6 +73,8 @@ int write_point_cloud_acsii(pcl::PointCloud<PCFORMAT>::Ptr m_cloud_ptr, const st
 
 	f.close();
 
+	std::cout << "saved to " << filename << std::endl;
+
 	return 0;
 }
 

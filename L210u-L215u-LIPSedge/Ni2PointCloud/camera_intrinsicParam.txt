@@ -1,0 +1,21 @@
+# Calibration can be done by MATLAB
+# Fy Cx Cy
+Fx 406.137762508476
+Fy 405.853943129860
+Cx 314.589389558692
+Cy 234.918587077988
+
+# Resolution
+Rx 640 
+Ry 480
+
+
+# RadialDistortion
+K1 0.0504982275228405	
+K2 -0.0843423182823032	
+K3 0.0576594763938395
+
+# TangentialDistortion
+P1 0
+P2 0
+
