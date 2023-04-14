@@ -37,7 +37,7 @@ int main(int argc, char* argv[])
 		cout << "ERROR: Cannot create depth stream on device" << endl << endl;
 		return 1;
 	}
-	vsDepth.setMirroringEnabled(true);
+	vsDepth.setMirroringEnabled(false);
 
 	mode = vsDepth.getVideoMode();
 	cout << "Depth VideoMode: " << mode.getResolutionX() << " x " << mode.getResolutionY() << " @ " << mode.getFps() << " FPS";
@@ -169,8 +169,9 @@ int main(int argc, char* argv[])
 			}
 			else if (save_type == "auto" && ((last_second - current_second) > interval_second))
 			{
-				if (frame_count > auto_number)
+				if (frame_count == auto_number)
 				{
+					std::cout << "frame number limited: break" << std::endl;
 					break;
 				}
 
