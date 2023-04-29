@@ -4,11 +4,21 @@ int main(int argc, char* argv[])
 {
 	std::map<std::string, std::string> parameter_list;
 	read_parameters_from_file("camera_parameters_l215u.txt", parameter_list);
-	std::string directory = parameter_list["saved_directory_name"];
+	std::string all_directory = parameter_list["saved_directory_name"];
 	std::string save_type = parameter_list["saved_format"];
 	float interval_second = std::stof(parameter_list["interval_time"]);
 	size_t auto_number = (save_type == "auto") ? std::stol(parameter_list["auto_number"]) : INT_MAX;
-	bool AUTOPOINTCLOUD = (save_type == "auto") ? true : false;
+	//bool AUTOPOINTCLOUD = (save_type == "auto") ? true : false;
+
+	std::vector<std::string> directoies;
+	boost::split(directoies, all_directory, boost::is_any_of("#"));
+	size_t index_dir = 0;
+	std::string curr_dir = directoies[index_dir];
+	std::cout << "current directory is " << curr_dir << std::endl;
+
+	//for (auto s: directoies)
+	//	std::cout << s << std::endl;
+	//return 1;
 
 	float hfov, vfov;
 	Status status;
@@ -137,6 +147,7 @@ int main(int argc, char* argv[])
 	std::vector<std::string> to_save_points_filename;
 	CameraParam camera_param;
 	loadCameraIntrinsicParam("camera_intrinsicParam.txt", camera_param);
+	
 	while (!viewer->wasStopped())
 	{
 		generateOneFramePointCloud(imgDepth, imgColor, mPointCloud, dFrame, cFrame, vsDepth, vsColor, pointCloud, isColorValid, camera_param);
@@ -151,13 +162,14 @@ int main(int argc, char* argv[])
 		pcl::transformPointCloud(*to_show_point_cloud, *to_show_point_cloud, tsfm);
 		add_point_cloud_visualization(viewer, to_show_point_cloud);
 		//std::cout << "Point size:" << to_show_point_cloud->width << std::endl;
+		//std::cout << "frame_count: " << frame_count << std::endl;
 
 		if (SAVEPOINTCLOUD || AUTOPOINTCLOUD)
 		{
 			std::vector<int> current_date;
 			std::string save_filename, final_save_filename;
 			save_filename = get_current_date(current_date) + "_" + std::to_string(frame_count);
-			save_filename = directory + "/" + save_filename;
+			save_filename = curr_dir + "/" + save_filename;
 
 			double last_second = clock();
 
@@ -171,8 +183,25 @@ int main(int argc, char* argv[])
 			{
 				if (frame_count == auto_number)
 				{
-					std::cout << "frame number limited: break" << std::endl;
-					break;
+					std::cout << "frame number limited: break & saving point clouds ..." << std::endl;
+					
+					std::cout <<"to_save_points.size():" << to_save_points.size() << std::endl;
+					for (size_t i = 0; i < to_save_points.size(); i++)
+					{
+						write_point_cloud_acsii(to_save_points[i], to_save_points_filename[i]);
+						std::cout << "[" << i << "/" << to_save_points.size() << "] saved: " << to_save_points_filename[i] << std::endl;
+					}
+					std::cout << "point clouds are saved" << std::endl;
+
+					index_dir = (index_dir + 1) == directoies.size() ? directoies.size() - 1 : index_dir + 1;
+					curr_dir = directoies[index_dir];
+					std::cout << "current directory is " << curr_dir << std::endl;
+
+					AUTOPOINTCLOUD = false;
+					frame_count = 0;
+					to_save_points.clear();
+					to_save_points_filename.clear();
+					continue;
 				}
 
 				current_second = last_second;
@@ -181,9 +210,9 @@ int main(int argc, char* argv[])
 				//std::cout
 				//	<< '[' << frame_count << '/' << auto_number << ']'
 				//	<< "saved to " << final_save_filename << std::endl;
-
 				to_save_points.push_back(to_show_point_cloud);
 				to_save_points_filename.push_back(final_save_filename);
+				std::cout << "captured [" << frame_count <<"] with \"" <<final_save_filename<<"\"" << std::endl;
 
 				++frame_count;
 			}
@@ -193,11 +222,7 @@ int main(int argc, char* argv[])
 		viewer->spinOnce(33);
 	}
 
-	for (size_t i = 0; i < to_save_points.size(); i++)
-	{
-		write_point_cloud_acsii(to_save_points[i], to_save_points_filename[i]);
-		std::cout << "\r[" << i << "/" << to_save_points.size() << "] saved: " << to_save_points_filename[i] << std::endl;
-	}
+	
 
 	vsDepth.stop();
 	vsDepth.destroy();

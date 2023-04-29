@@ -13,6 +13,7 @@ using namespace openni;
 using namespace cv;
 
 extern bool SAVEPOINTCLOUD;
+extern bool AUTOPOINTCLOUD;
 extern std::mutex pointcloud_mutex;
 extern bool CALIBRATED;
 

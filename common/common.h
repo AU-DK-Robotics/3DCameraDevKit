@@ -10,6 +10,7 @@
 #include <pcl/filters/passthrough.h>
 
 #include <boost/make_shared.hpp>
+#include <boost/algorithm/string.hpp>
 
 #include <iomanip>
 #include <iostream>

@@ -1,6 +1,7 @@
 #include "../include/L215u.h"
 
 bool SAVEPOINTCLOUD = false;
+bool AUTOPOINTCLOUD = false;
 std::mutex pointcloud_mutex;
 bool CALIBRATED = false;
 cv::Rect ValidRoi;
@@ -14,6 +15,12 @@ void keyboardEventOccurred(const pcl::visualization::KeyboardEvent& event, void*
 	{
 		SAVEPOINTCLOUD = true;
 	}
+
+	if (event.getKeySym() == "n" && event.keyDown())
+	{
+		AUTOPOINTCLOUD = true;
+	}
+	
 }
 
 //Mat niComputeCloud(const Mat depthMap, const VideoStream& depthStream)

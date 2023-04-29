@@ -1,7 +1,13 @@
 # for L215u
-saved_directory_name ./eye-in-hand-calibration-joints/joints_3
+# multiple value can be saved for one key
+saved_directory_name ./test/joints_1
+saved_directory_name ./test/joints_2
+saved_directory_name ./test/joints_3
+saved_directory_name ./test/joints_4
+saved_directory_name ./test/joints_5
+saved_directory_name ./test/joints_6
 #saved_format should be only bin/txt/auto
 saved_format auto
 #ms
-interval_time 200
-auto_number 30
+interval_time 500
+auto_number 3

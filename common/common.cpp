@@ -20,7 +20,13 @@ void read_parameters_from_file(const std::string filename, std::map<std::string,
         // std::cout << line << std::endl;
         if (sline >> key >> value)
         {
-            parameter_list[key] = value;
+			if (parameter_list[key].empty())
+			{
+				//std::cout << value << std::endl;
+				parameter_list[key] = value;
+			}
+			else
+				parameter_list[key] = parameter_list[key] + "#" + value;
             // std::cout << key << "and" << line << std::endl;
         }
     }
