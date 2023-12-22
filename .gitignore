@@ -11,7 +11,7 @@
 #*.txt
 *.bin
 *.py
-
+*points*.txt
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
 

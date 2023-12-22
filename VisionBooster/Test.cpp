@@ -5,7 +5,7 @@ using namespace std;
 #define VST_SINGLE_SCAN			 // Scan once
 #define VST_UnorderedPointClouds // Unordered points 
 
-const char *install_path = "C:\\Program Files\\VST\\VisenTOP Studio\\VisenTOP Studio.exe";
+const char *install_path = "D:\\Program Files\\VST\\VisenTOP Studio\\VisenTOP Studio.exe";
 
 //void WINAPI CaptureThreadFunc(LPVOID lpParameter)
 //{
@@ -57,7 +57,7 @@ int _tmain(int argc, _TCHAR *argv[])
 	int N = 0;
 	int lossN = 0;
 
-	int totalGroup = 1; // 设置连续扫描的次数
+	int totalGroup = 2; // 设置连续扫描的次数
 	vector<int> vGroupNumRecord(totalGroup);
 
 	/////////////////////////////////////获取相机内参和外参数////////////////////////////////////
@@ -222,33 +222,38 @@ int _tmain(int argc, _TCHAR *argv[])
 				cb = (float)pt.cb / 255;
 				// cout << x << "," << y << "," << z << endl;
 				// system("pause");
+				//file << x << " " << y << " " << z << endl;
+				//file << x << " " << y << " " << z << " " << nx << " " << ny << " " << nz << endl;
+				file << x << " " << y << " " << z << " " << cr << " " << cg << " " << cb << " " << nx << " " << ny << " " << nz << endl;
 			}
+
 			if (myPts)
 			{
+
 				delete[] myPts;
 			}
 
 			// method 2: Get each point by index
-			vGroupNumRecord[N] = totalNum;
-			for (int i = 0; i < totalNum; i++) // 遍历单次采集到的所有乱序点云，得到点云坐标等信息，通过索引方式[0 1 2 ....]
-			{
-				VST3D_PT *pt = nullptr;
-				VST3D_GetEachPointByIndex(i, &pt);
-				float x, y, z, nx, ny, nz;
-				float cr, cg, cb;
-				x = pt->x;
-				y = pt->y;
-				z = pt->z;
-				nx = pt->nx;
-				ny = pt->ny;
-				nz = pt->nz;
-				cr = (float)pt->cr / 255;
-				cg = (float)pt->cg / 255;
-				cb = (float)pt->cb / 255;
-				file << x << " " << y << " " << z << endl;
-				//			file << x << " " << y << " " << z << " " << nx << " " << ny << " " << nz << endl;
-				//			file << x << " " << y << " " << z << " " << cr << " " << cg << " " << cb << " " << nx << " " << ny << " " << nz << endl;
-			}
+			//vGroupNumRecord[N] = totalNum;
+			//for (int i = 0; i < totalNum; i++) // 遍历单次采集到的所有乱序点云，得到点云坐标等信息，通过索引方式[0 1 2 ....]
+			//{
+			//	VST3D_PT *pt = nullptr;
+			//	VST3D_GetEachPointByIndex(i, &pt);
+			//	float x, y, z, nx, ny, nz;
+			//	float cr, cg, cb;
+			//	x = pt->x;
+			//	y = pt->y;
+			//	z = pt->z;
+			//	nx = pt->nx;
+			//	ny = pt->ny;
+			//	nz = pt->nz;
+			//	cr = (float)pt->cr / 255;
+			//	cg = (float)pt->cg / 255;
+			//	cb = (float)pt->cb / 255;
+			//	file << x << " " << y << " " << z << endl;
+			//	//			file << x << " " << y << " " << z << " " << nx << " " << ny << " " << nz << endl;
+			//	//			file << x << " " << y << " " << z << " " << cr << " " << cg << " " << cb << " " << nx << " " << ny << " " << nz << endl;
+			//}
 			// file.close();
 			////////////////////////////////////////////////////////////////////////
 			// char Imagename[64];
@@ -304,6 +309,9 @@ int _tmain(int argc, _TCHAR *argv[])
 		}
 		cout << "# " << N << " total num is :" << totalNum << endl;
 		N++;
+		int a;
+		cin >> a;
+
 	}
 
 	cout << endl;
@@ -441,8 +449,8 @@ int _tmain(int argc, _TCHAR *argv[])
 	for (size_t i = 0; i < totalGroup; i++)
 	{
 		double *buff = reinterpret_cast<double *>((unsigned char *)para + i * 12 * sizeof(double));
-		double R[3][3] = {0.0};
-		double T[3] = {0.0};
+		double R[3][3] = { 0.0 };
+		double T[3] = { 0.0 };
 		for (size_t n = 0; n < 3; n++)
 		{
 			for (size_t m = 0; m < 3; m++)
@@ -464,8 +472,8 @@ int _tmain(int argc, _TCHAR *argv[])
 	for (size_t i = 0; i < totalGroup; i++)
 	{
 		double *buff = reinterpret_cast<double *>((unsigned char *)para_eular + i * 6 * sizeof(double));
-		double eular[3] = {0.0};
-		double T[3] = {0.0};
+		double eular[3] = { 0.0 };
+		double T[3] = { 0.0 };
 		for (size_t n = 0; n < 3; n++)
 		{
 			eular[n] = buff[n];
