@@ -34,9 +34,16 @@ const char *install_path = "D:\\Program Files\\VST\\VisenTOP Studio\\VisenTOP St
 //	}
 //}
 
+#include "VisionSystem.h"
+
 #ifdef VST_SINGLE_SCAN
 int _tmain(int argc, _TCHAR *argv[])
 {
+	VisionSystem * p_vSystem = new VisionSystem(std::string(install_path));
+	Eigen::Vector3f point;  Eigen::Vector3f axis;
+	p_vSystem->fittingCylidner("CylinderPoints.txt", point, axis);
+	std::cout << point << "\n" << axis << std::endl;
+
 	//int result = VST3D_Init(); // default path, start with software's window
 	int result = VST3D_Init(install_path, true);  // default path, start without software's window
 	if (result != VST3D_RESULT_OK)

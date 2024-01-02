@@ -1,12 +1,21 @@
 #pragma once
 
-//#include "targetver.h"
+#define _USE_MATH_DEFINES
+#include <math.h>
 #include <iostream>
 #include <fstream>
 #include <stdio.h>
 #include <stdlib.h>
 #include <tchar.h>
+#include <Python.h>
+
+#include <filesystem>
 #include <vector>
+#include <limits>
+
+
+#include <Eigen/Dense>
+
 #include "windows.h"
 #include "VisionBooster.h"
 
