@@ -1,9 +1,14 @@
 #include "VisionSystem.h"
 
 VisionSystem::VisionSystem(std::string installPath)
-	:captureMethod(2)
+	:VST3D_RESULT(VST3D_RESULT_ERROR), captureMethod(2)
 {
 	this->installPath = installPath;
+
+	initVisionSystem();
+
+	if (!isConnected())
+		throw std::bad_exception();
 }
 
 VisionSystem::~VisionSystem()
@@ -47,7 +52,7 @@ bool VisionSystem::scanOnce(std::vector<VST3D_PT> & VSTPoints)
 	}
 
 	VST3D_PT *pPointClouds = nullptr;
-	result = VST3D_GetPointClouds(totalNum, &pPointClouds); 
+	result = VST3D_GetPointClouds(totalNum, &pPointClouds);
 
 	// Method 1
 	if (captureMethod == 1)
@@ -105,11 +110,55 @@ bool VisionSystem::scanOnce(std::vector<VST3D_PT> & VSTPoints)
 	return true;
 }
 
+void VisionSystem::save2File(const std::vector<VST3D_PT> &VSTPoints, std::string filename)
+{
+	std::ofstream of;
+	of.open(filename);
+	for (auto &p : VSTPoints)
+	{
+		of << p.x << " " << p.y << " " << p.z << " "
+			<< p.nx << " " << p.ny << " " << p.nz << " "
+			<< p.cr << " " << p.cg << " " << p.cb << "\n";
+	}
+	of.close();
+}
+
+void VisionSystem::transformPointcloud(const std::vector<VST3D_PT>& VSTPoints, Eigen::Matrix4f & m, std::vector<VST3D_PT>& new_VSTPoints, const cropSize_t & cropSize, bool ifCrop = false)
+{
+	std::vector<VST3D_PT> optVSTPoints;
+	if (ifCrop)
+	{
+		cropPointCloud(cropSize, VSTPoints, optVSTPoints);
+	}
+	else
+	{
+		optVSTPoints = VSTPoints;
+	}
+
+	std::vector<Eigen::Vector4f> pointsEigen;
+	pointsEigen.resize(optVSTPoints.size());
+
+	for (auto &p : optVSTPoints)
+	{
+		pointsEigen.push_back(Eigen::Vector4f{p.x, p.y, p.z, 1});
+	}
+
+	new_VSTPoints.resize(optVSTPoints.size());
+	VST3D_PT tmp;
+	for (auto &p : pointsEigen)
+	{
+		tmp.x = (m * p)[0];
+		tmp.y = (m * p)[1];
+		tmp.z = (m * p)[2];
+		new_VSTPoints.push_back(tmp);
+	}
+}
+
 void VisionSystem::cropPointCloud(const cropSize_t & cropSize, const std::vector<VST3D_PT>& VSTPoints, std::vector<VST3D_PT>& new_VSTPoints)
 {
 	new_VSTPoints.clear();
 
-	for (auto &p: VSTPoints)
+	for (auto &p : VSTPoints)
 	{
 		if (p.x > cropSize.min_x && p.x < cropSize.max_x &&
 			p.y > cropSize.min_y && p.y < cropSize.max_y &&
@@ -166,7 +215,7 @@ void VisionSystem::fittingCylidner(const std::string pointsFilename, Eigen::Vect
 	if (!Py_IsInitialized())
 	{
 		throw std::runtime_error("Python Initialization Failed");
-		return ;
+		return;
 	}
 	PyRun_SimpleString("import sys");
 	PyRun_SimpleString("sys.path.append('./')");
@@ -176,14 +225,14 @@ void VisionSystem::fittingCylidner(const std::string pointsFilename, Eigen::Vect
 	{
 		PyErr_Print();
 		throw std::runtime_error("Module not found");
-		return ;
+		return;
 	}
 
 	PyObject * func = PyObject_GetAttrString(module, "CylinderFitting");
 	if (!func || !PyCallable_Check(func))
 	{
 		throw std::runtime_error("Func in Module not found");
-		return ;
+		return;
 	}
 	PyObject * args = PyTuple_New(1);
 	PyTuple_SetItem(args, 0, Py_BuildValue("s", "CylinderPoints.txt"));
@@ -199,9 +248,9 @@ void VisionSystem::fittingCylidner(const std::string pointsFilename, Eigen::Vect
 		PyArg_Parse(pRet, "f", &tmp);
 
 		if (i < 3) point[i] = tmp;
-		else if (i >= 3) axis[i-3] = tmp;
+		else if (i >= 3) axis[i - 3] = tmp;
 	}
-	
+
 	Py_Finalize();
 
 }
@@ -232,18 +281,18 @@ void VisionSystem::retryCon(const std::string errorStr, const int codeLine, cons
 		// Delay of a few seconds before each reconnection, camera, raster hardware driver loading takes time
 		Sleep(6000);
 
-		int result = VST3D_Reset(this->installPath.data()); 
+		int result = VST3D_Reset(this->installPath.data());
 
 		if (result != VST3D_RESULT_OK)
 		{
-			printf("Check cables connected to Scanner.\n"); 
+			printf("Check cables connected to Scanner.\n");
 		}
 		else
 		{
 			break;
 		}
 		// Make 5 reconnect attempts, if the scanner does not connect properly, exit the software system.
-		if (nreset++ > 5) 
+		if (nreset++ > 5)
 		{
 			VST3D_Exit();
 		}
@@ -291,4 +340,12 @@ void VisionSystem::loadPointsFromFile(const std::string pointsFilename, std::vec
 		VSTpoint.z = value[2];
 		VSTPoints.push_back(VSTpoint);
 	}
+}
+
+bool VisionSystem::isConnected()
+{
+	if (VST3D_RESULT != VST3D_RESULT_OK)
+		return false;
+	else
+		return true;
 }

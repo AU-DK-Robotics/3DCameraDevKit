@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "VisionSystem.h"
 using namespace std;
 
 #define CAPTURE_TIME_OUT 6000 // 获取点云超时
@@ -36,7 +36,7 @@ const char *install_path = "D:\\Program Files\\VST\\VisenTOP Studio\\VisenTOP St
 
 #include "VisionSystem.h"
 
-#ifdef VST_SINGLE_SCAN
+//#ifdef VST_SINGLE_SCAN
 int _tmain(int argc, _TCHAR *argv[])
 {
 	VisionSystem * p_vSystem = new VisionSystem(std::string(install_path));
@@ -329,7 +329,6 @@ int _tmain(int argc, _TCHAR *argv[])
 
 	return 0;
 }
-#endif
 
 #ifdef VST_ALIGN_SCAN
 int _tmain(int argc, _TCHAR *argv[])
